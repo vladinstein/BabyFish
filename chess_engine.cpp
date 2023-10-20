@@ -403,7 +403,6 @@ int main()
 	//piece_moves.insert(std::end(piece_moves), std::begin(white_pawn_moves), std::end(white_pawn_moves));
 	//for (std::pair<size_t, size_t> pawn_move : piece_moves)
 	//	std::cout << pawn_move.first << pawn_move.second << std::endl;
-	//test
 	current_game.struct_to_fen();
 	return 0;
 }
