@@ -42,96 +42,78 @@ void replace_digits_with_zeros(std::string& fen);
 // This is a struct containing the game data.
 class GameData {
 	// Bitboards for board data.
-public:
-	U64 white_pawns = 0x00000000000000ULL;
-	U64 black_pawns = 0x00000000000000ULL;
-	U64 white_knights = 0x00000000000000ULL;
-	U64 black_knights = 0x00000000000000ULL;
-	U64 white_bishops = 0x00000000000000ULL;
-	U64 black_bishops = 0x00000000000000ULL;
-	U64 white_rooks = 0x00000000000000ULL;
-	U64 black_rooks = 0x00000000000000ULL;
-	U64 white_queens = 0x00000000000000ULL;
-	U64 black_queens = 0x00000000000000ULL;
-	U64 white_king = 0x00000000000000ULL;
-	U64 black_king = 0x00000000000000ULL;
-	U64 white_pieces = 0x00000000000000ULL;
-	U64 black_pieces = 0x00000000000000ULL;
-	//U64 white_pawns = 0xFF000000000000ULL; 
-	//U64 black_pawns = 0xFF00ULL;
-	//U64 white_knights = 0x4200000000000000ULL;
-	//U64 black_knights = 0x42ULL;
-	//U64 white_bishops = 0x2400000000000000ULL;
-	//U64 black_bishops = 0x24ULL;
-	//U64 white_rooks = 0x8100000000000000ULL;
-	//U64 black_rooks = 0x81ULL;
-	//U64 white_queens = 0x800000000000000ULL;
-	//U64 black_queens = 0x8ULL;
-	//U64 white_king = 0x1000000000000000ULL;
-	//U64 black_king = 0x10ULL;
-	//U64 white_pieces = 0xFFFF000000000000ULL;
-	//U64 black_pieces = 0xFFFFULL;
+	U64 m_white_pawns {};
+	U64 m_black_pawns {};
+	U64 m_white_knights {};
+	U64 m_black_knights {};
+	U64 m_white_bishops {};
+	U64 m_black_bishops {};
+	U64 m_white_rooks {};
+	U64 m_black_rooks {};
+	U64 m_white_queens {};
+	U64 m_black_queens {};
+	U64 m_white_king {};
+	U64 m_black_king {};
+	U64 m_white_pieces {};
+	U64 m_black_pieces {};
+	//U64 m_white_pawns = 0xFF000000000000ULL; 
+	//U64 m_black_pawns = 0xFF00ULL;
+	//U64 m_white_knights = 0x4200000000000000ULL;
+	//U64 m_black_knights = 0x42ULL;
+	//U64 m_white_bishops = 0x2400000000000000ULL;
+	//U64 m_black_bishops = 0x24ULL;
+	//U64 m_white_rooks = 0x8100000000000000ULL;
+	//U64 m_black_rooks = 0x81ULL;
+	//U64 m_white_queens = 0x800000000000000ULL;
+	//U64 m_black_queens = 0x8ULL;
+	//U64 m_white_king = 0x1000000000000000ULL;
+	//U64 m_black_king = 0x10ULL;
+	//U64 m_white_pieces = 0xFFFF000000000000ULL;
+	//U64 m_black_pieces = 0xFFFFULL;
 	// Values for additional data.
-	bool active_color = true;
-	bool white_king_castling = false;
-	bool white_queen_castling = false;
-	bool black_king_castling = false;
-	bool black_queen_castling = false;
-	std::string en_passant_target = "";
-	int halfmove_clock = 0;
-	int fullmove_number = 0;
+	bool m_active_color {};
+	bool m_white_king_castling {};
+	bool m_white_queen_castling {};
+	bool m_black_king_castling {};
+	bool m_black_queen_castling {};
+	std::string m_en_passant_target {};
+	int m_halfmove_clock {};
+	int m_fullmove_number {};
 
 public:
-	// This method sets castling values from the FEN in the current game object.
-	void set_castling_values(std::string& fen_castling) {
-		for (char& castling_char : fen_castling) {
-			switch (castling_char) {
-			case 'K':
-				white_king_castling = true;
-				break;
-			case 'k':
-				black_king_castling = true;
-				break;
-			case 'Q':
-				white_queen_castling = true;
-				break;
-			case 'q':
-				black_queen_castling = true;
-				break;
-			}
-		}
-		std::cout << "Castling values:" << white_king_castling << black_king_castling << white_queen_castling <<
-			black_queen_castling << '\n';
+	GameData(U64 white_pawns, U64 black_pawns, U64 white_knights, U64 black_knights, U64 white_bishops, U64 black_bishops,
+		U64 white_rooks, U64 black_rooks, U64 white_queens, U64 black_queens, U64 white_king, U64 black_king, U64 white_pieces,
+		U64 black_pieces, bool active_color, std::array<bool, 4> castling_values, std::string en_passant_target, int halfmove_clock, int fullmove_number)
+		: m_white_pawns { white_pawns }
+		, m_black_pawns { black_pawns }
+		, m_white_knights { white_knights }
+		, m_black_knights { black_knights }
+		, m_white_bishops { white_bishops }
+		, m_black_bishops { black_bishops }
+		, m_white_rooks { white_rooks }
+		, m_black_rooks { black_rooks }
+		, m_white_queens { white_queens }
+		, m_black_queens { black_queens }
+		, m_white_king { white_king }
+		, m_black_king { black_king }
+		, m_white_pieces { white_pieces }
+		, m_black_pieces { black_pieces }
+		, m_active_color { active_color }
+		, m_white_king_castling { castling_values[0]}
+		, m_white_queen_castling { castling_values[1] }
+		, m_black_king_castling { castling_values[2] }
+		, m_black_queen_castling { castling_values[3] }
+		, m_en_passant_target { en_passant_target }
+		, m_halfmove_clock { halfmove_clock }
+		, m_fullmove_number{ fullmove_number }
+	{
 	}
-
-	// This function sets the values of the game struct other than board representation
-	//  taking them from the string stream (that was made from the FEN string).
-	void set_game_object_values(std::istringstream& ssfen) {
-		std::array<std::string, 8> fen_other;
-		std::map<std::string, bool> color_map{ {"b", false}, {"w", true} };
-		// Here we use take parts of the fen string that are not the board representation (everything after the first space).
-		// So, we don't need fen_other[0].
-		// The values of the en passant target, halfmove and fullmove clocks can be immediately stored in struct variables.
-		ssfen >> fen_other[0] >> fen_other[1] >> fen_other[2] >> en_passant_target >> halfmove_clock >> fullmove_number;
-		// We use map to add the active color to the struct.
-		active_color = color_map[fen_other[1]];
-		// And this function to add values of castling states.
-		set_castling_values(fen_other[2]);
-		//std::cout << active_color << '\n';
-		//std::cout << black_king_castling << '\n';
-		//std::cout << black_queen_castling << '\n';
-		//std::cout << white_king_castling << '\n';
-		//std::cout << white_queen_castling << '\n';
-		//std::cout << halfmove_clock << '\n';
-		//std::cout << fullmove_number << '\n';
-	}
-
 	// Function setting the board position from the FEN-string via the bitboards.
 	void set_board_position(std::string board) {
 		// Map connecting FEN string values with pointers to particular bitboards.
-		std::map<std::string, U64*> fen_bit{ {"P", &white_pawns }, { "N", &white_knights }, { "B", &white_bishops },
-		{ "R", &white_rooks }, {"Q", &white_queens}, { "K", &white_king }, {"p", &black_pawns }, { "n", &black_knights },
-		{ "b", &black_bishops }, { "r", &black_rooks }, {"q", &black_queens}, { "k", &black_king }
+		std::map<std::string, U64*> fen_bit{ {"P", &m_white_pawns }, { "N", &m_white_knights }, { "B", &m_white_bishops },
+		{ "R", &m_white_rooks }, {"Q", &m_white_queens}, { "K", &m_white_king }, {"p", &m_black_pawns }, { "n", &m_black_knights },
+		{ "b", &m_black_bishops }, { "r", &m_black_rooks }, {"q", &m_black_queens}, { "k", &m_black_king }
 		};
 		std::cout << "FEN string board only: " << board << '\n';
 		// Looping through the modified (we replaced each number x with x zeros) board part of the FEN string.
@@ -144,47 +126,35 @@ public:
 				U64* pBitboard = fen_bit[s];
 				// Set that bit on that bitboard.
 				set_bit(*pBitboard, i);
-				// If the letter is uppercase, we also set a bit in the white_pieces bitboard.
+				// If the letter is uppercase, we also set a bit in the m_white_pieces bitboard.
 				if (std::isupper(board[i]))
-					set_bit(white_pieces, i);
-				// If the letter is lowercase, we set a bit in the black_pieces bitboard.
+					set_bit(m_white_pieces, i);
+				// If the letter is lowercase, we set a bit in the m_black_pieces bitboard.
 				else
-					set_bit(black_pieces, i);
+					set_bit(m_black_pieces, i);
 			}
 		}
 	}
 
-	// This function is going to store the data from the FEN string in the game object.
-	void fen_to_game_object(std::string fen) {
-		std::istringstream ssfen(fen);
-		std::cout << fen << '\n';
-		set_game_object_values(ssfen);
-		// Remove other values from the last element of rows array, leaving only the board data.
-		std::string board = fen.substr(0, fen.find(" "));
-		board.erase(std::remove(board.begin(), board.end(), '/'), board.end());
-		replace_digits_with_zeros(board);
-		set_board_position(board);
-	}
-
 	// This function writes white pieces positions into FEN string.
-	void append_white_pieces_to_fen(std::string& fen, std::size_t bit) {
+	void append_m_white_pieces_to_fen(std::string& fen, std::size_t bit) {
 		// Write the appropriate letter (white pieces) into the future FEN string.
-		if (get_bit(white_pawns, bit))			fen[bit] = 'P';
-		else if (get_bit(white_knights, bit))	fen[bit] = 'N';
-		else if (get_bit(white_bishops, bit))	fen[bit] = 'B';
-		else if (get_bit(white_rooks, bit))		fen[bit] = 'R';
-		else if (get_bit(white_queens, bit))	fen[bit] = 'Q';
+		if (get_bit(m_white_pawns, bit))			fen[bit] = 'P';
+		else if (get_bit(m_white_knights, bit))	fen[bit] = 'N';
+		else if (get_bit(m_white_bishops, bit))	fen[bit] = 'B';
+		else if (get_bit(m_white_rooks, bit))		fen[bit] = 'R';
+		else if (get_bit(m_white_queens, bit))	fen[bit] = 'Q';
 		else									fen[bit] = 'K';
 	}
 
 	// This function writes black pieces positions into FEN string.
-	void append_black_pieces_to_fen(std::string& fen, std::size_t bit) {
+	void append_m_black_pieces_to_fen(std::string& fen, std::size_t bit) {
 		// Write the appropriate letter (black pieces) into the future FEN string.
-		if (get_bit(black_pawns, bit))          fen[bit] = 'p';
-		else if (get_bit(black_knights, bit))   fen[bit] = 'n';
-		else if (get_bit(black_bishops, bit))   fen[bit] = 'b';
-		else if (get_bit(black_rooks, bit))     fen[bit] = 'r';
-		else if (get_bit(black_queens, bit))    fen[bit] = 'q';
+		if (get_bit(m_black_pawns, bit))          fen[bit] = 'p';
+		else if (get_bit(m_black_knights, bit))   fen[bit] = 'n';
+		else if (get_bit(m_black_bishops, bit))   fen[bit] = 'b';
+		else if (get_bit(m_black_rooks, bit))     fen[bit] = 'r';
+		else if (get_bit(m_black_queens, bit))    fen[bit] = 'q';
 		else									fen[bit] = 'k';
 	}
 
@@ -192,10 +162,10 @@ public:
 	void append_pieces_to_fen(std::string& fen) {
 		for (std::size_t bit = 0; bit < 64; bit++) {
 			// Check bitboards for white and black pieces and call the function for the white/black accordingly.
-			if (get_bit(white_pieces, bit))
-				append_white_pieces_to_fen(fen, bit);
-			else if (get_bit(black_pieces, bit))
-				append_black_pieces_to_fen(fen, bit);
+			if (get_bit(m_white_pieces, bit))
+				append_m_white_pieces_to_fen(fen, bit);
+			else if (get_bit(m_black_pieces, bit))
+				append_m_black_pieces_to_fen(fen, bit);
 		}
 	}
 
@@ -240,27 +210,27 @@ public:
 	void append_other_data(std::string& fen) {
 		fen.append(" ");
 		std::map<bool, std::string> color_map{ {false, "b"}, {true, "w"} };
-		fen.append(color_map[active_color]);
+		fen.append(color_map[m_active_color]);
 		fen.append(" ");
-		if (white_king_castling == true)
+		if (m_white_king_castling == true)
 			fen.append("K");
-		if (white_queen_castling == true)
+		if (m_white_queen_castling == true)
 			fen.append("Q");
-		if (black_king_castling == true)
+		if (m_black_king_castling == true)
 			fen.append("k");
-		if (black_queen_castling == true)
+		if (m_black_queen_castling == true)
 			fen.append("q");
 		if (fen.back() == ' ')
 			fen.append("-");
 		fen.append(" ");
-		if (en_passant_target == "")
+		if (m_en_passant_target == "")
 			fen.append("-");
 		else
-			fen.append(en_passant_target);
+			fen.append(m_en_passant_target);
 		fen.append(" ");
-		fen = fen + std::to_string(halfmove_clock);
+		fen = fen + std::to_string(m_halfmove_clock);
 		fen.append(" ");
-		fen = fen + std::to_string(fullmove_number);
+		fen = fen + std::to_string(m_fullmove_number);
 	}
 
 	// This function writes all the data from the game object to the FEN string.
@@ -278,7 +248,7 @@ public:
 
 	// This function prints selected bitboard.
 	// Functions for adding current board position to the FEN are going to use the same pattend (for every type of pieces).
-	void print_bitboard(U64 bitboard) {
+	void print_bitboard(U64 bitboard) const {
 		std::cout << "\n";
 		for (int rank = 0; rank < 8; rank++) {
 			for (int file = 0; file < 8; file++) {
@@ -296,6 +266,12 @@ public:
 		std::cout << "Bitboard:  " << +bitboard << "\n";
 		std::cout << "\n";
 	}
+
+	void print_the_board() const {
+		U64 all_pieces = m_white_pieces | m_black_pieces;
+		print_bitboard(all_pieces);
+	}
+
 };
 
 // This function prints a human-readable ascii board representation.
@@ -379,17 +355,91 @@ void replace_digits_with_zeros(std::string& fen) {
 	}
 }
 
+
+// This function should be part of the constructor.
+// This method sets castling values from the FEN in the current game object.
+std::array<bool, 4> get_castling_values(std::string& fen_castling, std::array<bool, 4> castling_values) {
+	for (char& castling_char : fen_castling) {
+		switch (castling_char) {
+		case 'K':
+			castling_values[0] = true;
+			break;
+		case 'k':
+			castling_values[1] = true;
+			break;
+		case 'Q':
+			castling_values[2] = true;
+			break;
+		case 'q':
+			castling_values[3] = true;
+			break;
+		}
+	}
+	return castling_values;
+}
+
+// This function is going to extract data from the FEN.
+std::tuple<std::string, std::array<bool, 4>, bool, std::string, int, int> extract_values_from_fen(std::string fen) {
+	std::istringstream ssfen(fen);
+	std::cout << fen << '\n';
+	std::array<bool, 4> castling_values = { false, false, false, false };
+	bool active_color{};
+	std::string en_passant_target{};
+	int halfmove_clock{};
+	int fullmove_number{};
+	std::string castling_string{};
+	std::string skip{};
+	std::string active_color_str{};
+	ssfen >> skip >> active_color_str >> castling_string >> en_passant_target >> halfmove_clock >> fullmove_number;
+	// Remove other values from the last element of rows array, leaving only the board data.
+	std::map<std::string, bool> color_map{ {"b", false}, {"w", true} };
+	active_color = color_map[active_color_str];
+	castling_values = get_castling_values(castling_string, castling_values);
+	std::string board = fen.substr(0, fen.find(" "));
+	board.erase(std::remove(board.begin(), board.end(), '/'), board.end());
+	replace_digits_with_zeros(board);
+	return std::make_tuple(board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number);
+}
+
+GameData create_game_object(std::string fen) {
+	std::string board{};
+	std::array<bool, 4> castling_values = { false, false, false, false };
+	bool active_color{};
+	std::string en_passant_target{};
+	int halfmove_clock{};
+	int fullmove_number{};
+	tie(board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number) = extract_values_from_fen(fen);
+	U64 white_pawns = 0x00000000000000ULL;
+	U64 black_pawns = 0x00000000000000ULL;
+	U64 white_knights = 0x00000000000000ULL;
+	U64 black_knights = 0x00000000000000ULL;
+	U64 white_bishops = 0x00000000000000ULL;
+	U64 black_bishops = 0x00000000000000ULL;
+	U64 white_rooks = 0x00000000000000ULL;
+	U64 black_rooks = 0x00000000000000ULL;
+	U64 white_queens = 0x00000000000000ULL;
+	U64 black_queens = 0x00000000000000ULL;
+	U64 white_king = 0x00000000000000ULL;
+	U64 black_king = 0x00000000000000ULL;
+	U64 white_pieces = 0x00000000000000ULL;
+	U64 black_pieces = 0x00000000000000ULL;
+	GameData gameData{ white_pawns, black_pawns, white_knights, black_knights, white_bishops, black_bishops, white_rooks,
+		black_rooks, white_queens, black_queens, white_king, black_king, white_pieces, black_pieces, active_color,
+		castling_values, en_passant_target, halfmove_clock, fullmove_number };
+	gameData.set_board_position(board);
+	return gameData;
+}
+
+
 int main()
 {
-	GameData current_game{};
 	std::string fen;
-	std::cout << "Please, enter the FEN: ";
+	std::cout << "Please, enter the FEN or the first move: ";
 	std::getline(std::cin, fen);
+	GameData gameData = create_game_object(fen);
 	std::cout << "FEN is: " << fen << std::endl;
-	current_game.fen_to_game_object(fen);
 	std::cout << "All pieces:" << '\n';
-	U64 all_pieces = current_game.white_pieces | current_game.black_pieces;
-	current_game.print_bitboard(all_pieces);
+	gameData.print_the_board();
 	fen.erase(std::remove(fen.begin(), fen.end(), '/'), fen.end());
 	replace_digits_with_zeros(fen);
 	std::cout << "FEN with zeros: " << fen << std::endl;
@@ -403,6 +453,6 @@ int main()
 	//piece_moves.insert(std::end(piece_moves), std::begin(white_pawn_moves), std::end(white_pawn_moves));
 	//for (std::pair<size_t, size_t> pawn_move : piece_moves)
 	//	std::cout << pawn_move.first << pawn_move.second << std::endl;
-	current_game.struct_to_fen();
+	gameData.struct_to_fen();
 	return 0;
 }
