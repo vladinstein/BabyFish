@@ -147,11 +147,11 @@ public:
 	void append_m_white_pieces_to_fen(std::string& fen, std::size_t bit) {
 		// Write the appropriate letter (white pieces) into the future FEN string.
 		if (get_bit(m_white_pawns, bit))			fen[bit] = 'P';
-		else if (get_bit(m_white_knights, bit))	fen[bit] = 'N';
-		else if (get_bit(m_white_bishops, bit))	fen[bit] = 'B';
+		else if (get_bit(m_white_knights, bit))	    fen[bit] = 'N';
+		else if (get_bit(m_white_bishops, bit))  	fen[bit] = 'B';
 		else if (get_bit(m_white_rooks, bit))		fen[bit] = 'R';
-		else if (get_bit(m_white_queens, bit))	fen[bit] = 'Q';
-		else									fen[bit] = 'K';
+		else if (get_bit(m_white_queens, bit))	    fen[bit] = 'Q';
+		else										fen[bit] = 'K';
 	}
 
 	// This function writes black pieces positions into FEN string.
@@ -162,7 +162,7 @@ public:
 		else if (get_bit(m_black_bishops, bit))   fen[bit] = 'b';
 		else if (get_bit(m_black_rooks, bit))     fen[bit] = 'r';
 		else if (get_bit(m_black_queens, bit))    fen[bit] = 'q';
-		else									fen[bit] = 'k';
+		else									  fen[bit] = 'k';
 	}
 
 	// This function writes pieces positions into FEN-to-be string.
@@ -408,7 +408,7 @@ std::tuple<std::string, std::array<bool, 4>, bool, std::string, int, int> extrac
 	return std::make_tuple(board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number);
 }
 
-GameData create_game_object(std::string fen) {
+GameData create_game_object_from_fen(std::string fen) {
 	std::string board{};
 	std::array<bool, 4> castling_values = { false, false, false, false };
 	bool active_color{};
@@ -437,21 +437,52 @@ GameData create_game_object(std::string fen) {
 	return gameData;
 }
 
+GameData create_game_object_new() {
+	std::array<bool, 4> castling_values{ CASTLING_START_POS };
+	bool active_color{ ACTIVE_COLOR_START_POS };
+	std::string en_passant_target{ EN_PASSANT_TARGET_START_POS };
+	int halfmove_clock{ HALFMOVE_CLOCK_START_POS };
+	int fullmove_number{ FULLMOVE_NUMBER_START_POS };
+	U64 white_pawns{ WHITE_PAWNS_START_POS };
+	U64 black_pawns{ BLACK_PAWNS_START_POS };
+	U64 white_knights{ WHITE_KNIGHTS_START_POS };
+	U64 black_knights{ BLACK_KNIGHTS_START_POS };
+	U64 white_bishops{ WHITE_BISHOPS_START_POS };
+	U64 black_bishops{ BLACK_BISHOPS_START_POS };
+	U64 white_rooks{ WHITE_ROOKS_START_POS };
+	U64 black_rooks{ BLACK_ROOKS_START_POS };
+	U64 white_queens{ WHITE_QUEEN_START_POS };
+	U64 black_queens{ BLACK_QUEEN_START_POS };
+	U64 white_king{ WHITE_KING_START_POS };
+	U64 black_king{ BLACK_KING_START_POS };
+	U64 white_pieces{ WHITE_PIECES_START_POS };
+	U64 black_pieces{ BLACK_PIECES_START_POS };
+	GameData gameData{ white_pawns, black_pawns, white_knights, black_knights, white_bishops, black_bishops, white_rooks,
+		black_rooks, white_queens, black_queens, white_king, black_king, white_pieces, black_pieces, active_color,
+		castling_values, en_passant_target, halfmove_clock, fullmove_number };
+	return gameData;
+}
 
 int main()
 {
-	std::string fen;
+	std::string input{};
 	std::cout << "Please, enter the FEN or the first move: ";
-	std::getline(std::cin, fen);
-	GameData gameData = create_game_object(fen);
-	std::cout << "FEN is: " << fen << std::endl;
-	std::cout << "All pieces:" << '\n';
-	gameData.print_the_board();
-	fen.erase(std::remove(fen.begin(), fen.end(), '/'), fen.end());
-	replace_digits_with_zeros(fen);
-	std::cout << "FEN with zeros: " << fen << std::endl;
-	std::cout << "Current a8: " << fen[a8] << std::endl;
-	std::cout << "Current b2: " << fen[b2] << std::endl;
+	std::getline(std::cin, input);
+	GameData gameData = input.length() > 5 ? create_game_object_from_fen(input) : create_game_object_new();
+	if (input.length() > 5) {
+		std::string fen{ input };
+		std::cout << "FEN is: " << fen << std::endl;
+		std::cout << "All pieces:" << '\n';
+		gameData.print_the_board();
+		fen.erase(std::remove(fen.begin(), fen.end(), '/'), fen.end());
+		replace_digits_with_zeros(fen);
+		std::cout << "FEN with zeros: " << fen << std::endl;
+		std::cout << "Current a8: " << fen[a8] << std::endl;
+		std::cout << "Current b2: " << fen[b2] << std::endl;
+	}
+	else {
+		std::string move{ input };
+	}
 	//std::vector <std::pair<size_t, size_t>> piece_moves = {};
 	//print_board_ascii(game);
 	//print_board_ascii(game);
