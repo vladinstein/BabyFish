@@ -11,6 +11,27 @@
 
 typedef uint64_t U64;
 
+const U64 EMPTY_BITBOARD{ 0x00000000000000ULL };
+const U64 WHITE_PAWNS_START_POS{ 0xFF000000000000ULL };
+const U64 BLACK_PAWNS_START_POS{ 0xFF00ULL };
+const U64 WHITE_KNIGHTS_START_POS{ 0x4200000000000000ULL };
+const U64 BLACK_KNIGHTS_START_POS{ 0x42ULL };
+const U64 WHITE_BISHOPS_START_POS{ 0x2400000000000000ULL };
+const U64 BLACK_BISHOPS_START_POS{ 0x24ULL };
+const U64 WHITE_ROOKS_START_POS{ 0x8100000000000000ULL };
+const U64 BLACK_ROOKS_START_POS{ 0x81ULL };
+const U64 WHITE_QUEEN_START_POS{ 0x800000000000000ULL };
+const U64 BLACK_QUEEN_START_POS{ 0x8ULL };
+const U64 WHITE_KING_START_POS{ 0x1000000000000000ULL };
+const U64 BLACK_KING_START_POS{ 0x10ULL };
+const U64 WHITE_PIECES_START_POS{ 0xFFFF000000000000ULL };
+const U64 BLACK_PIECES_START_POS{ 0xFFFFULL };
+const bool ACTIVE_COLOR_START_POS{ true };
+const std::array<bool, 4> CASTLING_START_POS{ true, true, true, true };
+const std::string EN_PASSANT_TARGET_START_POS{ "-" };
+const int HALFMOVE_CLOCK_START_POS{ 0 };
+const int FULLMOVE_NUMBER_START_POS{ 0 };
+
 #define set_bit(b, i) ((b) |= (1ULL << i))
 #define get_bit(b, i) ((b) & (1ULL << i))
 #define clear_bit(b, i) ((b) &= ~(1ULL << i))
@@ -56,20 +77,6 @@ class GameData {
 	U64 m_black_king {};
 	U64 m_white_pieces {};
 	U64 m_black_pieces {};
-	//U64 m_white_pawns = 0xFF000000000000ULL; 
-	//U64 m_black_pawns = 0xFF00ULL;
-	//U64 m_white_knights = 0x4200000000000000ULL;
-	//U64 m_black_knights = 0x42ULL;
-	//U64 m_white_bishops = 0x2400000000000000ULL;
-	//U64 m_black_bishops = 0x24ULL;
-	//U64 m_white_rooks = 0x8100000000000000ULL;
-	//U64 m_black_rooks = 0x81ULL;
-	//U64 m_white_queens = 0x800000000000000ULL;
-	//U64 m_black_queens = 0x8ULL;
-	//U64 m_white_king = 0x1000000000000000ULL;
-	//U64 m_black_king = 0x10ULL;
-	//U64 m_white_pieces = 0xFFFF000000000000ULL;
-	//U64 m_black_pieces = 0xFFFFULL;
 	// Values for additional data.
 	bool m_active_color {};
 	bool m_white_king_castling {};
@@ -99,7 +106,7 @@ public:
 		, m_white_pieces { white_pieces }
 		, m_black_pieces { black_pieces }
 		, m_active_color { active_color }
-		, m_white_king_castling { castling_values[0]}
+		, m_white_king_castling { castling_values[0] }
 		, m_white_queen_castling { castling_values[1] }
 		, m_black_king_castling { castling_values[2] }
 		, m_black_queen_castling { castling_values[3] }
@@ -409,20 +416,20 @@ GameData create_game_object(std::string fen) {
 	int halfmove_clock{};
 	int fullmove_number{};
 	tie(board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number) = extract_values_from_fen(fen);
-	U64 white_pawns = 0x00000000000000ULL;
-	U64 black_pawns = 0x00000000000000ULL;
-	U64 white_knights = 0x00000000000000ULL;
-	U64 black_knights = 0x00000000000000ULL;
-	U64 white_bishops = 0x00000000000000ULL;
-	U64 black_bishops = 0x00000000000000ULL;
-	U64 white_rooks = 0x00000000000000ULL;
-	U64 black_rooks = 0x00000000000000ULL;
-	U64 white_queens = 0x00000000000000ULL;
-	U64 black_queens = 0x00000000000000ULL;
-	U64 white_king = 0x00000000000000ULL;
-	U64 black_king = 0x00000000000000ULL;
-	U64 white_pieces = 0x00000000000000ULL;
-	U64 black_pieces = 0x00000000000000ULL;
+	U64 white_pawns = EMPTY_BITBOARD;
+	U64 black_pawns = EMPTY_BITBOARD;
+	U64 white_knights = EMPTY_BITBOARD;
+	U64 black_knights = EMPTY_BITBOARD;
+	U64 white_bishops = EMPTY_BITBOARD;
+	U64 black_bishops = EMPTY_BITBOARD;
+	U64 white_rooks = EMPTY_BITBOARD;
+	U64 black_rooks = EMPTY_BITBOARD;
+	U64 white_queens = EMPTY_BITBOARD;
+	U64 black_queens = EMPTY_BITBOARD;
+	U64 white_king = EMPTY_BITBOARD;
+	U64 black_king = EMPTY_BITBOARD;
+	U64 white_pieces = EMPTY_BITBOARD;
+	U64 black_pieces = EMPTY_BITBOARD;
 	GameData gameData{ white_pawns, black_pawns, white_knights, black_knights, white_bishops, black_bishops, white_rooks,
 		black_rooks, white_queens, black_queens, white_king, black_king, white_pieces, black_pieces, active_color,
 		castling_values, en_passant_target, halfmove_clock, fullmove_number };
