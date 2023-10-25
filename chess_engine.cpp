@@ -58,7 +58,7 @@ enum {
 "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
 */
 
-void replace_digits_with_zeros(std::string& fen);
+std::string replace_digits_with_zeros(std::string fen);
 
 // This is a struct containing the game data.
 class GameData {
@@ -274,6 +274,7 @@ public:
 		std::cout << "\n";
 	}
 
+	// Function that prints all the pieces on the board.
 	void print_the_board() const {
 		U64 all_pieces = m_white_pieces | m_black_pieces;
 		print_bitboard(all_pieces);
@@ -342,13 +343,13 @@ public:
 //}
 
 //This fuction replaces digits in the FEN with a number of zeros (1 with 1 zero, 2 - with 2 zeros, 3 - 3 zeros etc)
-void replace_digits_with_zeros(std::string& fen) {
+std::string replace_digits_with_zeros(std::string board) {
 	//Find first occurance of digits in the FEN-string.
-	std::size_t found = fen.find_first_of("0123456789");
+	std::size_t found = board.find_first_of("0123456789");
 	// Keep going until done.
 	while (found != std::string::npos) {
 		// This turns the digit char into an integer.
-		int empty_squares_digit = fen[found] - '0';
+		int empty_squares_digit = board[found] - '0';
 		// Turning the integer into size_t to be able to create a string with it (this will be the length of the string).
 		// (!!!!!) Need an error-check function here (!!!!!)
 		// Check if it's positive.
@@ -356,16 +357,17 @@ void replace_digits_with_zeros(std::string& fen) {
 		// Creating a string with appropriate number of zeros.
 		std::string zeros(zeros_length, '0');
 		// Replacing a digit with an appropriate number of zeros.
-		fen.replace(found, 1, zeros);
+		board.replace(found, 1, zeros);
 		// Find next occurance of any of the digits.
-		found = fen.find_first_of("0123456789", found + zeros_length);
+		found = board.find_first_of("0123456789", found + zeros_length);
 	}
+	return board;
 }
 
-
-// This function should be part of the constructor.
-// This method sets castling values from the FEN in the current game object.
-std::array<bool, 4> get_castling_values(std::string& fen_castling, std::array<bool, 4> castling_values) {
+// This function returns castling values from the current FEN-string.
+std::array<bool, 4> get_castling_values(std::string fen_castling, std::array<bool, 4> castling_values) {
+	// Castling values are initialized to false, so if we see a particular castling value letter in a string, the
+	// appropriate value is set to true. 
 	for (char& castling_char : fen_castling) {
 		switch (castling_char) {
 		case 'K':
@@ -385,37 +387,45 @@ std::array<bool, 4> get_castling_values(std::string& fen_castling, std::array<bo
 	return castling_values;
 }
 
-// This function is going to extract data from the FEN.
-std::tuple<std::string, std::array<bool, 4>, bool, std::string, int, int> extract_values_from_fen(std::string fen) {
+// This function returns all the data from the FEN-string.
+std::tuple<std::string, std::array<bool, 4>, bool, std::string, int, int> extract_values_from_fen(std::string fen, 
+	std::string board, std::array<bool, 4> castling_values, bool active_color, std::string en_passant_target, 
+	int halfmove_clock, int fullmove_number) {
+
+	// Turn the string into istringstream to extract data.
 	std::istringstream ssfen(fen);
-	std::cout << fen << '\n';
-	std::array<bool, 4> castling_values = { false, false, false, false };
-	bool active_color{};
-	std::string en_passant_target{};
-	int halfmove_clock{};
-	int fullmove_number{};
+
+	// Create two string variables to hold castling and active color strings for future use.
 	std::string castling_string{};
-	std::string skip{};
 	std::string active_color_str{};
-	ssfen >> skip >> active_color_str >> castling_string >> en_passant_target >> halfmove_clock >> fullmove_number;
-	// Remove other values from the last element of rows array, leaving only the board data.
+
+	// Extract all the data from the istringstream into the variables.
+	ssfen >> board >> active_color_str >> castling_string >> en_passant_target >> halfmove_clock >> fullmove_number;
+	// Use a map to set active color bool value from active color string.
 	std::map<std::string, bool> color_map{ {"b", false}, {"w", true} };
 	active_color = color_map[active_color_str];
+	// Use function to get castling values from castling value string.
 	castling_values = get_castling_values(castling_string, castling_values);
-	std::string board = fen.substr(0, fen.find(" "));
+	// Remove slashes and replace all digits with appropriate number of zeros (3 becomes "000" etc) to be able to 
+	// loop through the string and put values directly to the bitboards.
 	board.erase(std::remove(board.begin(), board.end(), '/'), board.end());
-	replace_digits_with_zeros(board);
+	board = replace_digits_with_zeros(board);
+
+	// Return all the extracted data.
 	return std::make_tuple(board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number);
 }
 
 GameData create_game_object_from_fen(std::string fen) {
+	// Initialize all the variables we are going to use for FEN data.
+	// Castling values are init. to false due to the design of the get_castling_values func.
 	std::string board{};
 	std::array<bool, 4> castling_values = { false, false, false, false };
 	bool active_color{};
 	std::string en_passant_target{};
 	int halfmove_clock{};
 	int fullmove_number{};
-	tie(board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number) = extract_values_from_fen(fen);
+	tie(board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number) = extract_values_from_fen(fen,
+		board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number);
 	U64 white_pawns = EMPTY_BITBOARD;
 	U64 black_pawns = EMPTY_BITBOARD;
 	U64 white_knights = EMPTY_BITBOARD;
@@ -474,11 +484,6 @@ int main()
 		std::cout << "FEN is: " << fen << std::endl;
 		std::cout << "All pieces:" << '\n';
 		gameData.print_the_board();
-		fen.erase(std::remove(fen.begin(), fen.end(), '/'), fen.end());
-		replace_digits_with_zeros(fen);
-		std::cout << "FEN with zeros: " << fen << std::endl;
-		std::cout << "Current a8: " << fen[a8] << std::endl;
-		std::cout << "Current b2: " << fen[b2] << std::endl;
 	}
 	else {
 		std::string move{ input };
