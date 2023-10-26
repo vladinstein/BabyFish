@@ -280,6 +280,27 @@ public:
 		print_bitboard(all_pieces);
 	}
 
+	std::vector<std::string> split_move(std::string move) {
+		std::size_t split_length{ 2 };
+		std::size_t number_of_strings = move.length() / split_length;
+		std::vector<std::string> move_split{};
+		for (std::size_t i = 0; i < number_of_strings; i++) {
+			move_split.push_back(move.substr(i * split_length, split_length));
+		}
+
+		if (move.length() % split_length != 0) {
+			move_split.push_back(move.substr(split_length * number_of_strings));
+		}
+
+		return move_split;
+	}
+
+	void make_a_move(std::string move) {
+		std::cout << move << '\n';
+		std::vector<std::string> move_split{ split_move(move) };
+		std::cout << "From: " << move_split[0] << " To: " << move_split[1] << '\n';
+	}
+
 };
 
 // This function prints a human-readable ascii board representation.
@@ -294,11 +315,6 @@ public:
 //		}
 //		std::cout << std::endl;
 //	}
-//}
-
-//FenData make_a_move(FenData& game, std::string& move) {
-//	std::cout << move << '\n';
-//	return game;
 //}
 
 // Is it possible to move the loop into a different func?
@@ -415,17 +431,20 @@ std::tuple<std::string, std::array<bool, 4>, bool, std::string, int, int> extrac
 	return std::make_tuple(board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number);
 }
 
+// Function that creates game object from the FEN string.
 GameData create_game_object_from_fen(std::string fen) {
-	// Initialize all the variables we are going to use for FEN data.
-	// Castling values are init. to false due to the design of the get_castling_values func.
+	// Zero - initialize all the variables we are going to use for FEN data except:
+	// castling values are init. to false due to the design of the get_castling_values func.
 	std::string board{};
 	std::array<bool, 4> castling_values = { false, false, false, false };
 	bool active_color{};
 	std::string en_passant_target{};
 	int halfmove_clock{};
 	int fullmove_number{};
+	// Get the values for those variables using extract_values_from_fen func.
 	tie(board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number) = extract_values_from_fen(fen,
 		board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number);
+	// Set all the bitboards to empty (to fill them up later on).
 	U64 white_pawns = EMPTY_BITBOARD;
 	U64 black_pawns = EMPTY_BITBOARD;
 	U64 white_knights = EMPTY_BITBOARD;
@@ -440,14 +459,19 @@ GameData create_game_object_from_fen(std::string fen) {
 	U64 black_king = EMPTY_BITBOARD;
 	U64 white_pieces = EMPTY_BITBOARD;
 	U64 black_pieces = EMPTY_BITBOARD;
+	// Create a game object using empty bitboards (to be filled later on) and the data we extracted from the FEN.
 	GameData gameData{ white_pawns, black_pawns, white_knights, black_knights, white_bishops, black_bishops, white_rooks,
 		black_rooks, white_queens, black_queens, white_king, black_king, white_pieces, black_pieces, active_color,
 		castling_values, en_passant_target, halfmove_clock, fullmove_number };
+	// Set bitboards according to the board position part of the FEN.
 	gameData.set_board_position(board);
+	// Return game object created using FEN string.
 	return gameData;
 }
 
-GameData create_game_object_new() {
+// This function creates game object for the starting position.
+GameData create_game_object_start_pos() {
+	// Initialize all the variables to the starting position values.
 	std::array<bool, 4> castling_values{ CASTLING_START_POS };
 	bool active_color{ ACTIVE_COLOR_START_POS };
 	std::string en_passant_target{ EN_PASSANT_TARGET_START_POS };
@@ -467,9 +491,11 @@ GameData create_game_object_new() {
 	U64 black_king{ BLACK_KING_START_POS };
 	U64 white_pieces{ WHITE_PIECES_START_POS };
 	U64 black_pieces{ BLACK_PIECES_START_POS };
+	// Create game object of a starting position.
 	GameData gameData{ white_pawns, black_pawns, white_knights, black_knights, white_bishops, black_bishops, white_rooks,
 		black_rooks, white_queens, black_queens, white_king, black_king, white_pieces, black_pieces, active_color,
 		castling_values, en_passant_target, halfmove_clock, fullmove_number };
+	// Return game object with the starting position.
 	return gameData;
 }
 
@@ -478,15 +504,16 @@ int main()
 	std::string input{};
 	std::cout << "Please, enter the FEN or the first move: ";
 	std::getline(std::cin, input);
-	GameData gameData = input.length() > 5 ? create_game_object_from_fen(input) : create_game_object_new();
+	GameData gameData = input.length() > 5 ? create_game_object_from_fen(input) : create_game_object_start_pos();
+	std::cout << "All pieces:" << '\n';
+	gameData.print_the_board();
 	if (input.length() > 5) {
 		std::string fen{ input };
 		std::cout << "FEN is: " << fen << std::endl;
-		std::cout << "All pieces:" << '\n';
-		gameData.print_the_board();
 	}
 	else {
 		std::string move{ input };
+		gameData.make_a_move(move);
 	}
 	//std::vector <std::pair<size_t, size_t>> piece_moves = {};
 	//print_board_ascii(game);
