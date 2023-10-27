@@ -11,26 +11,34 @@
 
 typedef uint64_t U64;
 
-const U64 EMPTY_BITBOARD{ 0x00000000000000ULL };
-const U64 WHITE_PAWNS_START_POS{ 0xFF000000000000ULL };
-const U64 BLACK_PAWNS_START_POS{ 0xFF00ULL };
-const U64 WHITE_KNIGHTS_START_POS{ 0x4200000000000000ULL };
-const U64 BLACK_KNIGHTS_START_POS{ 0x42ULL };
-const U64 WHITE_BISHOPS_START_POS{ 0x2400000000000000ULL };
-const U64 BLACK_BISHOPS_START_POS{ 0x24ULL };
-const U64 WHITE_ROOKS_START_POS{ 0x8100000000000000ULL };
-const U64 BLACK_ROOKS_START_POS{ 0x81ULL };
-const U64 WHITE_QUEEN_START_POS{ 0x800000000000000ULL };
-const U64 BLACK_QUEEN_START_POS{ 0x8ULL };
-const U64 WHITE_KING_START_POS{ 0x1000000000000000ULL };
-const U64 BLACK_KING_START_POS{ 0x10ULL };
-const U64 WHITE_PIECES_START_POS{ 0xFFFF000000000000ULL };
-const U64 BLACK_PIECES_START_POS{ 0xFFFFULL };
-const bool ACTIVE_COLOR_START_POS{ true };
+// Empty bitboard.
+constexpr U64 EMPTY_BITBOARD{ 0x00000000000000ULL };
+
+// Starting bitboards.
+constexpr U64 WHITE_PAWNS_START_POS{ 0xFF000000000000ULL };
+constexpr U64 BLACK_PAWNS_START_POS{ 0xFF00ULL };
+constexpr U64 WHITE_KNIGHTS_START_POS{ 0x4200000000000000ULL };
+constexpr U64 BLACK_KNIGHTS_START_POS{ 0x42ULL };
+constexpr U64 WHITE_BISHOPS_START_POS{ 0x2400000000000000ULL };
+constexpr U64 BLACK_BISHOPS_START_POS{ 0x24ULL };
+constexpr U64 WHITE_ROOKS_START_POS{ 0x8100000000000000ULL };
+constexpr U64 BLACK_ROOKS_START_POS{ 0x81ULL };
+constexpr U64 WHITE_QUEEN_START_POS{ 0x800000000000000ULL };
+constexpr U64 BLACK_QUEEN_START_POS{ 0x8ULL };
+constexpr U64 WHITE_KING_START_POS{ 0x1000000000000000ULL };
+constexpr U64 BLACK_KING_START_POS{ 0x10ULL };
+constexpr U64 WHITE_PIECES_START_POS{ 0xFFFF000000000000ULL };
+constexpr U64 BLACK_PIECES_START_POS{ 0xFFFFULL };
+
+// Other starting data.
+constexpr bool ACTIVE_COLOR_START_POS{ true };
 const std::array<bool, 4> CASTLING_START_POS{ true, true, true, true };
 const std::string EN_PASSANT_TARGET_START_POS{ "-" };
-const int HALFMOVE_CLOCK_START_POS{ 0 };
-const int FULLMOVE_NUMBER_START_POS{ 0 };
+constexpr int HALFMOVE_CLOCK_START_POS{ 0 };
+constexpr int FULLMOVE_NUMBER_START_POS{ 0 };
+
+// Length of the part of the move string containing the coordinates of one square.
+constexpr std::size_t LENGTH_ONE_SQUARE_COORDS{ 2 };
 
 #define set_bit(b, i) ((b) |= (1ULL << i))
 #define get_bit(b, i) ((b) & (1ULL << i))
@@ -281,15 +289,14 @@ public:
 	}
 
 	std::vector<std::string> split_move(std::string move) {
-		std::size_t split_length{ 2 };
-		std::size_t number_of_strings = move.length() / split_length;
+		std::size_t number_of_strings = move.length() / LENGTH_ONE_SQUARE_COORDS;
 		std::vector<std::string> move_split{};
 		for (std::size_t i = 0; i < number_of_strings; i++) {
-			move_split.push_back(move.substr(i * split_length, split_length));
+			move_split.push_back(move.substr(i * LENGTH_ONE_SQUARE_COORDS, LENGTH_ONE_SQUARE_COORDS));
 		}
 
-		if (move.length() % split_length != 0) {
-			move_split.push_back(move.substr(split_length * number_of_strings));
+		if (move.length() % LENGTH_ONE_SQUARE_COORDS != 0) {
+			move_split.push_back(move.substr(LENGTH_ONE_SQUARE_COORDS * number_of_strings));
 		}
 
 		return move_split;
@@ -433,6 +440,7 @@ std::tuple<std::string, std::array<bool, 4>, bool, std::string, int, int> extrac
 
 // Function that creates game object from the FEN string.
 GameData create_game_object_from_fen(std::string fen) {
+
 	// Zero - initialize all the variables we are going to use for FEN data except:
 	// castling values are init. to false due to the design of the get_castling_values func.
 	std::string board{};
@@ -441,60 +449,34 @@ GameData create_game_object_from_fen(std::string fen) {
 	std::string en_passant_target{};
 	int halfmove_clock{};
 	int fullmove_number{};
+
 	// Get the values for those variables using extract_values_from_fen func.
-	tie(board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number) = extract_values_from_fen(fen,
+	std::tie(board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number) = extract_values_from_fen(fen,
 		board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number);
-	// Set all the bitboards to empty (to fill them up later on).
-	U64 white_pawns = EMPTY_BITBOARD;
-	U64 black_pawns = EMPTY_BITBOARD;
-	U64 white_knights = EMPTY_BITBOARD;
-	U64 black_knights = EMPTY_BITBOARD;
-	U64 white_bishops = EMPTY_BITBOARD;
-	U64 black_bishops = EMPTY_BITBOARD;
-	U64 white_rooks = EMPTY_BITBOARD;
-	U64 black_rooks = EMPTY_BITBOARD;
-	U64 white_queens = EMPTY_BITBOARD;
-	U64 black_queens = EMPTY_BITBOARD;
-	U64 white_king = EMPTY_BITBOARD;
-	U64 black_king = EMPTY_BITBOARD;
-	U64 white_pieces = EMPTY_BITBOARD;
-	U64 black_pieces = EMPTY_BITBOARD;
-	// Create a game object using empty bitboards (to be filled later on) and the data we extracted from the FEN.
-	GameData gameData{ white_pawns, black_pawns, white_knights, black_knights, white_bishops, black_bishops, white_rooks,
-		black_rooks, white_queens, black_queens, white_king, black_king, white_pieces, black_pieces, active_color,
-		castling_values, en_passant_target, halfmove_clock, fullmove_number };
+
+	// Create a game object setting all bitboards to empty (to be filled in the set_board_position func. with the values from
+	// the FEN) and the data that we extracted from the FEN.
+	GameData gameData{ EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, 
+		EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, 
+		EMPTY_BITBOARD, active_color, castling_values, en_passant_target, halfmove_clock, fullmove_number };
+
 	// Set bitboards according to the board position part of the FEN.
 	gameData.set_board_position(board);
+
 	// Return game object created using FEN string.
 	return gameData;
 }
 
 // This function creates game object for the starting position.
 GameData create_game_object_start_pos() {
-	// Initialize all the variables to the starting position values.
-	std::array<bool, 4> castling_values{ CASTLING_START_POS };
-	bool active_color{ ACTIVE_COLOR_START_POS };
-	std::string en_passant_target{ EN_PASSANT_TARGET_START_POS };
-	int halfmove_clock{ HALFMOVE_CLOCK_START_POS };
-	int fullmove_number{ FULLMOVE_NUMBER_START_POS };
-	U64 white_pawns{ WHITE_PAWNS_START_POS };
-	U64 black_pawns{ BLACK_PAWNS_START_POS };
-	U64 white_knights{ WHITE_KNIGHTS_START_POS };
-	U64 black_knights{ BLACK_KNIGHTS_START_POS };
-	U64 white_bishops{ WHITE_BISHOPS_START_POS };
-	U64 black_bishops{ BLACK_BISHOPS_START_POS };
-	U64 white_rooks{ WHITE_ROOKS_START_POS };
-	U64 black_rooks{ BLACK_ROOKS_START_POS };
-	U64 white_queens{ WHITE_QUEEN_START_POS };
-	U64 black_queens{ BLACK_QUEEN_START_POS };
-	U64 white_king{ WHITE_KING_START_POS };
-	U64 black_king{ BLACK_KING_START_POS };
-	U64 white_pieces{ WHITE_PIECES_START_POS };
-	U64 black_pieces{ BLACK_PIECES_START_POS };
-	// Create game object of a starting position.
-	GameData gameData{ white_pawns, black_pawns, white_knights, black_knights, white_bishops, black_bishops, white_rooks,
-		black_rooks, white_queens, black_queens, white_king, black_king, white_pieces, black_pieces, active_color,
-		castling_values, en_passant_target, halfmove_clock, fullmove_number };
+
+	// Create game object using starting position constants.
+	GameData gameData{ WHITE_PAWNS_START_POS, BLACK_PAWNS_START_POS, WHITE_KNIGHTS_START_POS, BLACK_KNIGHTS_START_POS, 
+		WHITE_BISHOPS_START_POS, BLACK_BISHOPS_START_POS, WHITE_ROOKS_START_POS, BLACK_ROOKS_START_POS, WHITE_QUEEN_START_POS, 
+		BLACK_QUEEN_START_POS, WHITE_KING_START_POS, BLACK_KING_START_POS, WHITE_PIECES_START_POS, BLACK_PIECES_START_POS, 
+		ACTIVE_COLOR_START_POS, CASTLING_START_POS, EN_PASSANT_TARGET_START_POS, HALFMOVE_CLOCK_START_POS, 
+		FULLMOVE_NUMBER_START_POS };
+
 	// Return game object with the starting position.
 	return gameData;
 }
