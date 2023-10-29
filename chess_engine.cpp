@@ -44,6 +44,8 @@ constexpr std::size_t LENGTH_ONE_SQUARE_COORDS{ 2 };
 #define get_bit(b, i) ((b) & (1ULL << i))
 #define clear_bit(b, i) ((b) &= ~(1ULL << i))
 
+#define all_pieces m_white_pieces | m_black_pieces
+
 enum {
 	a8, b8, c8, d8, e8, f8, g8, h8,
 	a7, b7, c7, d7, e7, f7, g7, h7,
@@ -284,7 +286,6 @@ public:
 
 	// Function that prints all the pieces on the board.
 	void print_the_board() const {
-		U64 all_pieces = m_white_pieces | m_black_pieces;
 		print_bitboard(all_pieces);
 	}
 
@@ -301,11 +302,26 @@ public:
 
 		return move_split;
 	}
+	// Remove magic numbers.
+	int string_to_bit(std::string square) {
+		int bit_number{ 0 };
+		int file = square[0] - 97;
+		int rank = 8 - square[1] - 48;
+		bit_number = rank * 8 + file;
+		return bit_number;
+	}
 
 	void make_a_move(std::string move) {
 		std::cout << move << '\n';
 		std::vector<std::string> move_split{ split_move(move) };
 		std::cout << "From: " << move_split[0] << " To: " << move_split[1] << '\n';
+		int move_from = string_to_bit(move_split[0]);
+		int move_to = string_to_bit(move_split[1]);
+		std::cout << "From: " << move_from << " To: " << move_to << '\n';
+		if (m_active_color == true) {
+			set_bit(m_white_pieces, move_to);
+			clear_bit(m_white_pieces, move_from);
+		}
 	}
 
 };
@@ -496,6 +512,7 @@ int main()
 	else {
 		std::string move{ input };
 		gameData.make_a_move(move);
+		gameData.print_the_board();
 	}
 	//std::vector <std::pair<size_t, size_t>> piece_moves = {};
 	//print_board_ascii(game);
