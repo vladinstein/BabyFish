@@ -500,6 +500,7 @@ GameData create_game_object_start_pos() {
 int main()
 {
 	std::string input{};
+	U64 test{ ~uint64_t(0) };
 	std::cout << "Please, enter the FEN or the first move: ";
 	std::getline(std::cin, input);
 	GameData gameData = input.length() > 5 ? create_game_object_from_fen(input) : create_game_object_start_pos();
@@ -523,5 +524,6 @@ int main()
 	//for (std::pair<size_t, size_t> pawn_move : piece_moves)
 	//	std::cout << pawn_move.first << pawn_move.second << std::endl;
 	gameData.struct_to_fen();
+	gameData.print_bitboard(test);
 	return 0;
 }
