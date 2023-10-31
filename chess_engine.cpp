@@ -13,8 +13,12 @@ typedef uint64_t U64;
 
 // Empty bitboard.
 constexpr U64 EMPTY_BITBOARD{ 0x00000000000000ULL };
+const std::array<U64, 7> ALL_PIECES_EMPTY{ 0x00000000000000ULL, 0x00000000000000ULL, 0x00000000000000ULL,
+0x00000000000000ULL, 0x00000000000000ULL, 0x00000000000000ULL, 0x00000000000000ULL };
 
 // Starting bitboards.
+const std::array<U64, 7> ALL_PIECES_START_POS{ 0xFF00000000FF00ULL, 0x4200000000000042ULL, 0x2400000000000024ULL,
+0x8100000000000081ULL, 0x800000000000008ULL, 0x1000000000000010ULL, 0xFFFFFFFFFFFFFFFFULL };
 constexpr U64 WHITE_PAWNS_START_POS{ 0xFF000000000000ULL };
 constexpr U64 BLACK_PAWNS_START_POS{ 0xFF00ULL };
 constexpr U64 WHITE_KNIGHTS_START_POS{ 0x4200000000000000ULL };
@@ -45,6 +49,7 @@ constexpr std::size_t LENGTH_ONE_SQUARE_COORDS{ 2 };
 #define clear_bit(b, i) ((b) &= ~(1ULL << i))
 
 #define all_pieces m_white_pieces | m_black_pieces
+#define all_bitboards m_all_pieces_bitboards[0] | m_all_pieces_bitboards[1] | m_all_pieces_bitboards[2] | m_all_pieces_bitboards[3] | m_all_pieces_bitboards[4] | m_all_pieces_bitboards[5]
 
 enum {
 	a8, b8, c8, d8, e8, f8, g8, h8,
@@ -73,6 +78,8 @@ std::string replace_digits_with_zeros(std::string fen);
 // This is a struct containing the game data.
 class GameData {
 	// Bitboards for board data.
+public:
+	std::array <U64, 7> m_all_pieces_bitboards{};
 	U64 m_white_pawns {};
 	U64 m_black_pawns {};
 	U64 m_white_knights {};
@@ -98,10 +105,12 @@ class GameData {
 	int m_fullmove_number {};
 
 public:
-	GameData(U64 white_pawns, U64 black_pawns, U64 white_knights, U64 black_knights, U64 white_bishops, U64 black_bishops,
+	GameData(std::array<U64, 7> all_pieces_bitboards, U64 white_pawns, U64 black_pawns, U64 white_knights, U64 black_knights, U64 white_bishops, U64 black_bishops,
 		U64 white_rooks, U64 black_rooks, U64 white_queens, U64 black_queens, U64 white_king, U64 black_king, U64 white_pieces,
 		U64 black_pieces, bool active_color, std::array<bool, 4> castling_values, std::string en_passant_target, int halfmove_clock, int fullmove_number)
-		: m_white_pawns { white_pawns }
+		: m_all_pieces_bitboards { all_pieces_bitboards[0], all_pieces_bitboards[1], all_pieces_bitboards[2], 
+		all_pieces_bitboards[3], all_pieces_bitboards[4], all_pieces_bitboards[5], all_pieces_bitboards[6] }
+		, m_white_pawns { white_pawns }
 		, m_black_pawns { black_pawns }
 		, m_white_knights { white_knights }
 		, m_black_knights { black_knights }
@@ -125,6 +134,7 @@ public:
 		, m_fullmove_number{ fullmove_number }
 	{
 	}
+	// Will be rewritten using an array.
 	// Function setting the board position from the FEN-string via the bitboards.
 	void set_board_position(std::string board) {
 		// Map connecting FEN string values with pointers to particular bitboards.
@@ -153,6 +163,7 @@ public:
 		}
 	}
 
+	// Need to be rewritten using an array.
 	// This function writes white pieces positions into FEN string.
 	void append_m_white_pieces_to_fen(std::string& fen, std::size_t bit) {
 		// Write the appropriate letter (white pieces) into the future FEN string.
@@ -164,6 +175,7 @@ public:
 		else										fen[bit] = 'K';
 	}
 
+	// Need to be rewritten using an array.
 	// This function writes black pieces positions into FEN string.
 	void append_m_black_pieces_to_fen(std::string& fen, std::size_t bit) {
 		// Write the appropriate letter (black pieces) into the future FEN string.
@@ -289,6 +301,10 @@ public:
 		print_bitboard(all_pieces);
 	}
 
+	void print_all_bitboards() const {
+		print_bitboard(all_bitboards);
+	}
+
 	std::vector<std::string> split_move(std::string move) {
 		std::size_t number_of_strings = move.length() / LENGTH_ONE_SQUARE_COORDS;
 		std::vector<std::string> move_split{};
@@ -302,6 +318,7 @@ public:
 
 		return move_split;
 	}
+
 	// Remove magic numbers.
 	int string_to_bit(std::string square) {
 		int bit_number{ 0 };
@@ -472,7 +489,7 @@ GameData create_game_object_from_fen(std::string fen) {
 
 	// Create a game object setting all bitboards to empty (to be filled in the set_board_position func. with the values from
 	// the FEN) and the data that we extracted from the FEN.
-	GameData gameData{ EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, 
+	GameData gameData{ ALL_PIECES_EMPTY, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, 
 		EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, 
 		EMPTY_BITBOARD, active_color, castling_values, en_passant_target, halfmove_clock, fullmove_number };
 
@@ -487,7 +504,7 @@ GameData create_game_object_from_fen(std::string fen) {
 GameData create_game_object_start_pos() {
 
 	// Create game object using starting position constants.
-	GameData gameData{ WHITE_PAWNS_START_POS, BLACK_PAWNS_START_POS, WHITE_KNIGHTS_START_POS, BLACK_KNIGHTS_START_POS, 
+	GameData gameData{ ALL_PIECES_START_POS, WHITE_PAWNS_START_POS, BLACK_PAWNS_START_POS, WHITE_KNIGHTS_START_POS, BLACK_KNIGHTS_START_POS,
 		WHITE_BISHOPS_START_POS, BLACK_BISHOPS_START_POS, WHITE_ROOKS_START_POS, BLACK_ROOKS_START_POS, WHITE_QUEEN_START_POS, 
 		BLACK_QUEEN_START_POS, WHITE_KING_START_POS, BLACK_KING_START_POS, WHITE_PIECES_START_POS, BLACK_PIECES_START_POS, 
 		ACTIVE_COLOR_START_POS, CASTLING_START_POS, EN_PASSANT_TARGET_START_POS, HALFMOVE_CLOCK_START_POS, 
@@ -500,7 +517,7 @@ GameData create_game_object_start_pos() {
 int main()
 {
 	std::string input{};
-	U64 test{ ~uint64_t(0) };
+	// U64 test{ ~uint64_t(0) };
 	std::cout << "Please, enter the FEN or the first move: ";
 	std::getline(std::cin, input);
 	GameData gameData = input.length() > 5 ? create_game_object_from_fen(input) : create_game_object_start_pos();
@@ -524,6 +541,6 @@ int main()
 	//for (std::pair<size_t, size_t> pawn_move : piece_moves)
 	//	std::cout << pawn_move.first << pawn_move.second << std::endl;
 	gameData.struct_to_fen();
-	gameData.print_bitboard(test);
+	gameData.print_all_bitboards();
 	return 0;
 }
