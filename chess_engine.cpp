@@ -19,6 +19,7 @@ const std::array<U64, 7> ALL_PIECES_EMPTY{ 0x00000000000000ULL, 0x00000000000000
 // Starting bitboards.
 const std::array<U64, 7> ALL_PIECES_START_POS{ 0xFF00000000FF00ULL, 0x4200000000000042ULL, 0x2400000000000024ULL,
 0x8100000000000081ULL, 0x800000000000008ULL, 0x1000000000000010ULL, 0xFFFFFFFFFFFFFFFFULL };
+constexpr U64 COLOR_START_POS{ 0xFFFF000000000000ULL };
 constexpr U64 WHITE_PAWNS_START_POS{ 0xFF000000000000ULL };
 constexpr U64 BLACK_PAWNS_START_POS{ 0xFF00ULL };
 constexpr U64 WHITE_KNIGHTS_START_POS{ 0x4200000000000000ULL };
@@ -50,6 +51,9 @@ constexpr std::size_t LENGTH_ONE_SQUARE_COORDS{ 2 };
 
 #define all_pieces m_white_pieces | m_black_pieces
 #define all_bitboards m_all_pieces_bitboards[0] | m_all_pieces_bitboards[1] | m_all_pieces_bitboards[2] | m_all_pieces_bitboards[3] | m_all_pieces_bitboards[4] | m_all_pieces_bitboards[5]
+#define white_rooks_arr m_all_pieces_bitboards[3] & m_color
+#define black_rooks_arr m_all_pieces_bitboards[3] & ~m_color
+
 
 enum {
 	a8, b8, c8, d8, e8, f8, g8, h8,
@@ -79,7 +83,8 @@ std::string replace_digits_with_zeros(std::string fen);
 class GameData {
 	// Bitboards for board data.
 public:
-	std::array <U64, 7> m_all_pieces_bitboards{};
+	std::array <U64, 7> m_all_pieces_bitboards {};
+	U64 m_color {};
 	U64 m_white_pawns {};
 	U64 m_black_pawns {};
 	U64 m_white_knights {};
@@ -105,11 +110,13 @@ public:
 	int m_fullmove_number {};
 
 public:
-	GameData(std::array<U64, 7> all_pieces_bitboards, U64 white_pawns, U64 black_pawns, U64 white_knights, U64 black_knights, U64 white_bishops, U64 black_bishops,
-		U64 white_rooks, U64 black_rooks, U64 white_queens, U64 black_queens, U64 white_king, U64 black_king, U64 white_pieces,
-		U64 black_pieces, bool active_color, std::array<bool, 4> castling_values, std::string en_passant_target, int halfmove_clock, int fullmove_number)
+	GameData(std::array<U64, 7> all_pieces_bitboards, U64 color, U64 white_pawns, U64 black_pawns, U64 white_knights, 
+		U64 black_knights, U64 white_bishops, U64 black_bishops, U64 white_rooks, U64 black_rooks, U64 white_queens, 
+		U64 black_queens, U64 white_king, U64 black_king, U64 white_pieces, U64 black_pieces, bool active_color, 
+		std::array<bool, 4> castling_values, std::string en_passant_target, int halfmove_clock, int fullmove_number)
 		: m_all_pieces_bitboards { all_pieces_bitboards[0], all_pieces_bitboards[1], all_pieces_bitboards[2], 
 		all_pieces_bitboards[3], all_pieces_bitboards[4], all_pieces_bitboards[5], all_pieces_bitboards[6] }
+		, m_color { color }
 		, m_white_pawns { white_pawns }
 		, m_black_pawns { black_pawns }
 		, m_white_knights { white_knights }
@@ -159,6 +166,32 @@ public:
 				// If the letter is lowercase, we set a bit in the m_black_pieces bitboard.
 				else
 					set_bit(m_black_pieces, i);
+			}
+		}
+		std::map<std::string, U64*> fen_bit_arr{ {"P", &m_all_pieces_bitboards[0]}, {"N", &m_all_pieces_bitboards[1]}, 
+		{"B", &m_all_pieces_bitboards[2]}, { "R", &m_all_pieces_bitboards[3] }, {"Q", &m_all_pieces_bitboards[4]}, 
+		{ "K", &m_all_pieces_bitboards[5] }, {"p", &m_all_pieces_bitboards[0] }, { "n", &m_all_pieces_bitboards[1] },
+		{ "b", &m_all_pieces_bitboards[2] }, { "r", &m_all_pieces_bitboards[3] }, {"q", &m_all_pieces_bitboards[4]}, 
+		{ "k", &m_all_pieces_bitboards[5] }
+		};
+		for (std::size_t i = 0; i < board.length(); i++) {
+			// If the character is not 0, we need to set the bit in the bitboard.
+			if (board[i] != '0') {
+				// Create a string from a character to be able to use a map.
+				std::string s(1, board[i]);
+				// Create a pointer to a particular bitboard that we need, according to the letter. 
+				U64* pBitboard = fen_bit_arr[s];
+				// Set that bit on that bitboard.
+				set_bit(*pBitboard, i);
+				// If the letter is uppercase, we also set a bit in the m_white_pieces bitboard.
+				if (std::isupper(board[i])) {
+					set_bit(m_white_pieces, i);
+					set_bit(m_color, i);
+				}
+				// If the letter is lowercase, we set a bit in the m_black_pieces bitboard.
+				else {
+					set_bit(m_black_pieces, i);
+				}
 			}
 		}
 	}
@@ -301,8 +334,16 @@ public:
 		print_bitboard(all_pieces);
 	}
 
-	void print_all_bitboards() const {
+	// Function that prints different bitboards in the array.
+	void print_bitboards() const {
+		std::cout << "All bitboards in the array: " << '\n';
 		print_bitboard(all_bitboards);
+		std::cout << "White rooks: " << '\n';
+		print_bitboard(white_rooks_arr);
+		std::cout << "Black rooks: " << '\n';
+		print_bitboard(black_rooks_arr);
+		print_bitboard(m_color);
+		print_bitboard(~m_color);
 	}
 
 	std::vector<std::string> split_move(std::string move) {
@@ -489,7 +530,7 @@ GameData create_game_object_from_fen(std::string fen) {
 
 	// Create a game object setting all bitboards to empty (to be filled in the set_board_position func. with the values from
 	// the FEN) and the data that we extracted from the FEN.
-	GameData gameData{ ALL_PIECES_EMPTY, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, 
+	GameData gameData{ ALL_PIECES_EMPTY, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD,
 		EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, 
 		EMPTY_BITBOARD, active_color, castling_values, en_passant_target, halfmove_clock, fullmove_number };
 
@@ -504,7 +545,7 @@ GameData create_game_object_from_fen(std::string fen) {
 GameData create_game_object_start_pos() {
 
 	// Create game object using starting position constants.
-	GameData gameData{ ALL_PIECES_START_POS, WHITE_PAWNS_START_POS, BLACK_PAWNS_START_POS, WHITE_KNIGHTS_START_POS, BLACK_KNIGHTS_START_POS,
+	GameData gameData{ ALL_PIECES_START_POS, COLOR_START_POS, WHITE_PAWNS_START_POS, BLACK_PAWNS_START_POS, WHITE_KNIGHTS_START_POS, BLACK_KNIGHTS_START_POS,
 		WHITE_BISHOPS_START_POS, BLACK_BISHOPS_START_POS, WHITE_ROOKS_START_POS, BLACK_ROOKS_START_POS, WHITE_QUEEN_START_POS, 
 		BLACK_QUEEN_START_POS, WHITE_KING_START_POS, BLACK_KING_START_POS, WHITE_PIECES_START_POS, BLACK_PIECES_START_POS, 
 		ACTIVE_COLOR_START_POS, CASTLING_START_POS, EN_PASSANT_TARGET_START_POS, HALFMOVE_CLOCK_START_POS, 
@@ -541,6 +582,6 @@ int main()
 	//for (std::pair<size_t, size_t> pawn_move : piece_moves)
 	//	std::cout << pawn_move.first << pawn_move.second << std::endl;
 	gameData.struct_to_fen();
-	gameData.print_all_bitboards();
+	gameData.print_bitboards();
 	return 0;
 }
