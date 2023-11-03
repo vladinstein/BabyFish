@@ -85,6 +85,7 @@ class GameData {
 public:
 	std::array <U64, 7> m_all_pieces_bitboards {};
 	U64 m_color {};
+	// will be removed !!!!!!!!!!!!!!!!!!!!!
 	U64 m_white_pawns {};
 	U64 m_black_pawns {};
 	U64 m_white_knights {};
@@ -110,6 +111,7 @@ public:
 	int m_fullmove_number {};
 
 public:
+	// Some parts will be removed !!!!!!!!!!!!!!!!!!!!!
 	GameData(std::array<U64, 7> all_pieces_bitboards, U64 color, U64 white_pawns, U64 black_pawns, U64 white_knights, 
 		U64 black_knights, U64 white_bishops, U64 black_bishops, U64 white_rooks, U64 black_rooks, U64 white_queens, 
 		U64 black_queens, U64 white_king, U64 black_king, U64 white_pieces, U64 black_pieces, bool active_color, 
@@ -141,7 +143,7 @@ public:
 		, m_fullmove_number{ fullmove_number }
 	{
 	}
-	// Will be rewritten using an array.
+	// Will be rewritten using an array. !!!!!!!!!!!!!!!!! Remove non-array part.
 	// Function setting the board position from the FEN-string via the bitboards.
 	void set_board_position(std::string board) {
 		// Map connecting FEN string values with pointers to particular bitboards.
@@ -196,28 +198,26 @@ public:
 		}
 	}
 
-	// Need to be rewritten using an array.
 	// This function writes white pieces positions into FEN string.
 	void append_m_white_pieces_to_fen(std::string& fen, std::size_t bit) {
 		// Write the appropriate letter (white pieces) into the future FEN string.
-		if (get_bit(m_white_pawns, bit))			fen[bit] = 'P';
-		else if (get_bit(m_white_knights, bit))	    fen[bit] = 'N';
-		else if (get_bit(m_white_bishops, bit))  	fen[bit] = 'B';
-		else if (get_bit(m_white_rooks, bit))		fen[bit] = 'R';
-		else if (get_bit(m_white_queens, bit))	    fen[bit] = 'Q';
-		else										fen[bit] = 'K';
+		if (get_bit(m_all_pieces_bitboards[0], bit))			fen[bit] = 'P';
+		else if (get_bit(m_all_pieces_bitboards[1], bit))	    fen[bit] = 'N';
+		else if (get_bit(m_all_pieces_bitboards[2], bit))  	    fen[bit] = 'B';
+		else if (get_bit(m_all_pieces_bitboards[3], bit))		fen[bit] = 'R';
+		else if (get_bit(m_all_pieces_bitboards[4], bit))	    fen[bit] = 'Q';
+		else													fen[bit] = 'K';
 	}
 
-	// Need to be rewritten using an array.
 	// This function writes black pieces positions into FEN string.
 	void append_m_black_pieces_to_fen(std::string& fen, std::size_t bit) {
 		// Write the appropriate letter (black pieces) into the future FEN string.
-		if (get_bit(m_black_pawns, bit))          fen[bit] = 'p';
-		else if (get_bit(m_black_knights, bit))   fen[bit] = 'n';
-		else if (get_bit(m_black_bishops, bit))   fen[bit] = 'b';
-		else if (get_bit(m_black_rooks, bit))     fen[bit] = 'r';
-		else if (get_bit(m_black_queens, bit))    fen[bit] = 'q';
-		else									  fen[bit] = 'k';
+		if (get_bit(m_all_pieces_bitboards[0], bit))          fen[bit] = 'p';
+		else if (get_bit(m_all_pieces_bitboards[1], bit))     fen[bit] = 'n';
+		else if (get_bit(m_all_pieces_bitboards[2], bit))     fen[bit] = 'b';
+		else if (get_bit(m_all_pieces_bitboards[3], bit))     fen[bit] = 'r';
+		else if (get_bit(m_all_pieces_bitboards[4], bit))     fen[bit] = 'q';
+		else												  fen[bit] = 'k';
 	}
 
 	// This function writes pieces positions into FEN-to-be string.
@@ -304,7 +304,6 @@ public:
 		// Now there are zeros left representing the empty fields. Turn those zeros into digits ("000" to 3 etc).
 		replace_zeros_with_digits(fen);
 		append_other_data(fen);
-		//Need to add all other data (we already have that func.).
 		std::cout << fen << std::endl;
 	}
 
