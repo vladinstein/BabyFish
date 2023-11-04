@@ -276,12 +276,7 @@ public:
 	void print_bitboards() const {
 		std::cout << "All bitboards in the array: " << '\n';
 		print_bitboard(all_bitboards);
-		std::cout << "White rooks: " << '\n';
-		print_bitboard(white_rooks_arr);
-		std::cout << "Black rooks: " << '\n';
-		print_bitboard(black_rooks_arr);
 		print_bitboard(m_color);
-		print_bitboard(~m_color);
 	}
 
 	std::vector<std::string> split_move(std::string move) {
@@ -298,15 +293,17 @@ public:
 		return move_split;
 	}
 
-	// Remove magic numbers.
+	// Remove magic numbers. Explain everything !!!!!!!!!!!!!!!!
 	int string_to_bit(std::string square) {
 		int bit_number{ 0 };
 		int file = square[0] - 97;
-		int rank = 8 - square[1] - 48;
+		int rank = 8 - (square[1] - 48);
 		bit_number = rank * 8 + file;
+		std::cout << bit_number<< " " << rank << " " << file << '\n';
 		return bit_number;
 	}
 
+	// This function makes a move on all bitboards.
 	void make_a_move(std::string move) {
 		std::cout << move << '\n';
 		std::vector<std::string> move_split{ split_move(move) };
@@ -314,9 +311,23 @@ public:
 		int move_from = string_to_bit(move_split[0]);
 		int move_to = string_to_bit(move_split[1]);
 		std::cout << "From: " << move_from << " To: " << move_to << '\n';
+		// Raise warning if i=6.
+		for (std::size_t i = 0;; ++i) {
+			if (m_all_pieces_bitboards[i] && get_bit(m_all_pieces_bitboards[i], move_from)) {
+				set_bit(m_all_pieces_bitboards[i], move_to);
+				clear_bit(m_all_pieces_bitboards[i], move_from);
+				break;
+			}
+		}
 		if (m_active_color == true) {
 			set_bit(m_white_pieces, move_to);
 			clear_bit(m_white_pieces, move_from);
+			set_bit(m_color, move_to);
+			clear_bit(m_color, move_from);
+		}
+		else {
+			set_bit(m_black_pieces, move_to);
+			clear_bit(m_black_pieces, move_from);
 		}
 	}
 
