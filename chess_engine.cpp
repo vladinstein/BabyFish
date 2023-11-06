@@ -33,6 +33,10 @@ constexpr int FULLMOVE_NUMBER_START_POS{ 0 };
 // Length of the part of the move string containing the coordinates of one square.
 constexpr std::size_t LENGTH_ONE_SQUARE_COORDS{ 2 };
 
+constexpr int LENGTH_IN_SQUARES_ONE_RANK{ 8 };
+constexpr int ASCII_LOWER_CASE_A_INT{ 97 };
+constexpr int ASCII_ZERO_INT{ 48 };
+
 #define set_bit(b, i) ((b) |= (1ULL << i))
 #define get_bit(b, i) ((b) & (1ULL << i))
 #define clear_bit(b, i) ((b) &= ~(1ULL << i))
@@ -279,27 +283,38 @@ public:
 		print_bitboard(m_color);
 	}
 
+	// This function splits the UCI move string into a vector of 2 or 3 separate strings (2 for each square and 1 for 
+	// promotion piece type if needed.
 	std::vector<std::string> split_move(std::string move) {
+		// Divide the length of the move string by the length of the string, containing coords. of one square (which is 2).
 		std::size_t number_of_strings = move.length() / LENGTH_ONE_SQUARE_COORDS;
+		// Create a vector of strings.
 		std::vector<std::string> move_split{};
+		// Add each substring of the move string containing one square coords. to the string vector. 
 		for (std::size_t i = 0; i < number_of_strings; i++) {
 			move_split.push_back(move.substr(i * LENGTH_ONE_SQUARE_COORDS, LENGTH_ONE_SQUARE_COORDS));
 		}
-
+		// If the length of the move string modulo 2 not equals 0 means that there was also a promotion type piece in the 
+		// move string. Add it to the vector of strings as well.
 		if (move.length() % LENGTH_ONE_SQUARE_COORDS != 0) {
 			move_split.push_back(move.substr(LENGTH_ONE_SQUARE_COORDS * number_of_strings));
 		}
-
+		// Return the vector of strings, where two strings are move coords. and possibly one string is a promotion piece type.
 		return move_split;
 	}
 
-	// Remove magic numbers. Explain everything !!!!!!!!!!!!!!!!
+	// This function takes each square coods. and returns the bit number of that square (for the bitboard).
 	int string_to_bit(std::string square) {
-		int bit_number{ 0 };
-		int file = square[0] - 97;
-		int rank = 8 - (square[1] - 48);
-		bit_number = rank * 8 + file;
+		// To get int from char, containing file letter, we subtract integer ascii value of lowercase 'a' from it.
+		int file = square[0] - ASCII_LOWER_CASE_A_INT;
+		// To get int from char, containing rank number, we subtract integer ascii value of zero.
+		int rank = LENGTH_IN_SQUARES_ONE_RANK - (square[1] - ASCII_ZERO_INT);
+		// Create bit number variable. 
+		int bit_number{};
+		// To get the number of the bit, multiply rank number by 8 (cause 8 squares in the rank) and add file int value.
+		bit_number = rank * LENGTH_IN_SQUARES_ONE_RANK + file;
 		std::cout << bit_number<< " " << rank << " " << file << '\n';
+		// Return the bit number.
 		return bit_number;
 	}
 
