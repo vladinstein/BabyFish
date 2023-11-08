@@ -318,6 +318,15 @@ public:
 		return bit_number;
 	}
 
+	std::size_t get_bitboard(int move_from) {
+		for (std::size_t i = 0;; ++i) {
+			if (get_bit(m_all_pieces_bitboards[i], move_from)) {
+				return i;
+			}
+		}
+	}
+
+
 	// This function makes a move on all bitboards.
 	void make_a_move(std::string move) {
 		std::cout << move << '\n';
@@ -327,13 +336,12 @@ public:
 		int move_to = string_to_bit(move_split[1]);
 		std::cout << "From: " << move_from << " To: " << move_to << '\n';
 		// Raise warning if i=6.
-		for (std::size_t i = 0; i < 6; ++i) {
-			if (get_bit(m_all_pieces_bitboards[i], move_from)) {
-				set_bit(m_all_pieces_bitboards[i], move_to);
-				clear_bit(m_all_pieces_bitboards[i], move_from);
-				break;
-			}
+		std::size_t i = get_bitboard(move_from);
+		if (i == 6) {
+			std::cout << "There is no bitboard with a piece in that square." << '\n';
 		}
+		set_bit(m_all_pieces_bitboards[i], move_to);
+		clear_bit(m_all_pieces_bitboards[i], move_from);
 		if (m_active_color == true) {
 			set_bit(m_white_pieces, move_to);
 			clear_bit(m_white_pieces, move_from);
