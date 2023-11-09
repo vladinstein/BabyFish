@@ -318,6 +318,7 @@ public:
 		return bit_number;
 	}
 
+	// Function that gets bitboard that has a piece in a particular field.
 	std::size_t get_bitboard(int move_from) {
 		for (std::size_t i = 0;; ++i) {
 			if (get_bit(m_all_pieces_bitboards[i], move_from)) {
@@ -325,7 +326,6 @@ public:
 			}
 		}
 	}
-
 
 	// This function makes a move on all bitboards.
 	void make_a_move(std::string move) {
@@ -337,8 +337,12 @@ public:
 		std::cout << "From: " << move_from << " To: " << move_to << '\n';
 		// Raise warning if i=6.
 		std::size_t i = get_bitboard(move_from);
-		if (i == 6) {
-			std::cout << "There is no bitboard with a piece in that square." << '\n';
+		try {
+			if (i == 6)
+				throw "there is no bitboard with a piece in that square.";
+		}
+		catch (const char* exception) {
+			std::cerr << "Error: " << exception << '\n';
 		}
 		set_bit(m_all_pieces_bitboards[i], move_to);
 		clear_bit(m_all_pieces_bitboards[i], move_from);
