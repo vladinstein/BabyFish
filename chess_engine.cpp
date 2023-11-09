@@ -330,22 +330,27 @@ public:
 	// This function makes a move on all bitboards.
 	void make_a_move(std::string move) {
 		std::cout << move << '\n';
+		// Split the move string into an array of strings ("from" square, "to" square, and, if needed, promotion piece type).
 		std::vector<std::string> move_split{ split_move(move) };
 		std::cout << "From: " << move_split[0] << " To: " << move_split[1] << '\n';
+		// Convert strings representing each square into int bit number on the bitboard.
 		int move_from = string_to_bit(move_split[0]);
 		int move_to = string_to_bit(move_split[1]);
 		std::cout << "From: " << move_from << " To: " << move_to << '\n';
-		// Raise warning if i=6.
-		std::size_t i = get_bitboard(move_from);
+		// Return the number of the bitboard that has a piece on that position.
+		std::size_t bitboard_number = get_bitboard(move_from);
+		// If bitboard number is equal 6, we reached the sentinel value, meaning there is no piece on the "from" square on 
+		// any of the bitboards. Throw an exception and report an error. 
 		try {
-			if (i == 6)
+			if (bitboard_number == 6)
 				throw "there is no bitboard with a piece in that square.";
 		}
 		catch (const char* exception) {
 			std::cerr << "Error: " << exception << '\n';
 		}
-		set_bit(m_all_pieces_bitboards[i], move_to);
-		clear_bit(m_all_pieces_bitboards[i], move_from);
+		// Make a move by setting all the required bitboards.
+		set_bit(m_all_pieces_bitboards[bitboard_number], move_to);
+		clear_bit(m_all_pieces_bitboards[bitboard_number], move_from);
 		if (m_active_color == true) {
 			set_bit(m_white_pieces, move_to);
 			clear_bit(m_white_pieces, move_from);
