@@ -280,7 +280,6 @@ public:
 	void print_bitboards() const {
 		std::cout << "All bitboards in the array: " << '\n';
 		print_bitboard(all_bitboards);
-		print_bitboard(m_color);
 	}
 
 	// This function splits the UCI move string into a vector of 2 or 3 separate strings (2 for each square and 1 for 
@@ -536,7 +535,7 @@ int main()
 {
 	std::string input{};
 	// U64 test{ ~uint64_t(0) };
-	std::cout << "Please, enter the FEN or the first move: ";
+	std::cout << "Please, enter the FEN or press enter to start the game from the beginning: ";
 	std::getline(std::cin, input);
 	GameData gameData = input.length() > 5 ? create_game_object_from_fen(input) : create_game_object_start_pos();
 	std::cout << "All pieces:" << '\n';
@@ -545,11 +544,11 @@ int main()
 		std::string fen{ input };
 		std::cout << "FEN is: " << fen << std::endl;
 	}
-	else {
-		std::string move{ input };
-		gameData.make_a_move(move);
-		gameData.print_the_board();
-	}
+	std::string move{};
+	std::cout << "Please, enter the next move: ";
+	std::getline(std::cin, move);
+	gameData.make_a_move(move);
+	gameData.print_the_board();
 	//std::vector <std::pair<size_t, size_t>> piece_moves = {};
 	//print_board_ascii(game);
 	//print_board_ascii(game);
