@@ -24,7 +24,7 @@ constexpr U64 WHITE_PIECES_START_POS{ 0xFFFF000000000000ULL };
 constexpr U64 BLACK_PIECES_START_POS{ 0xFFFFULL };
 
 // Other starting data.
-constexpr bool ACTIVE_COLOR_START_POS{ true };
+constexpr bool ACTIVE_COLOR_START_POS{ true };								// true - white, false - black.
 const std::array<bool, 4> CASTLING_START_POS{ true, true, true, true };
 const std::string EN_PASSANT_TARGET_START_POS{ "-" };
 constexpr int HALFMOVE_CLOCK_START_POS{ 0 };
@@ -73,12 +73,13 @@ std::string replace_digits_with_zeros(std::string fen);
 
 // This is a struct containing the game data.
 class GameData {
+
 	// Bitboards for board data.
-public:
 	std::array <U64, 7> m_all_pieces_bitboards {};
 	U64 m_color {};
 	U64 m_white_pieces {};
 	U64 m_black_pieces {};
+
 	// Values for additional data.
 	bool m_active_color {};
 	bool m_white_king_castling {};
@@ -88,6 +89,8 @@ public:
 	std::string m_en_passant_target {};
 	int m_halfmove_clock {};
 	int m_fullmove_number {};
+
+	// Computer pieces (1 - 
 
 public:
 	// Some parts will be removed !!!!!!!!!!!!!!!!!!!!!
@@ -533,15 +536,18 @@ GameData create_game_object_start_pos() {
 
 int main()
 {
-	std::string input{};
+	std::string fen{};
 	// U64 test{ ~uint64_t(0) };
 	std::cout << "Please, enter the FEN or press enter to start the game from the beginning: ";
-	std::getline(std::cin, input);
-	GameData gameData = input.length() > 5 ? create_game_object_from_fen(input) : create_game_object_start_pos();
+	std::getline(std::cin, fen);
+	std::string pl_color{};
+	std::cout << "Please, enter w to choose white and b to choose black pieces: ";
+	std::getline(std::cin, pl_color);
+	// Add "pl_color" value to the game class (1 - white, 0 - black);
+	GameData gameData = fen.length() > 5 ? create_game_object_from_fen(fen) : create_game_object_start_pos();
 	std::cout << "All pieces:" << '\n';
 	gameData.print_the_board();
-	if (input.length() > 5) {
-		std::string fen{ input };
+	if (fen.length() > 5) {
 		std::cout << "FEN is: " << fen << std::endl;
 	}
 	std::string move{};
