@@ -37,6 +37,9 @@ constexpr int LENGTH_IN_SQUARES_ONE_RANK{ 8 };
 constexpr int ASCII_LOWER_CASE_A_INT{ 97 };
 constexpr int ASCII_ZERO_INT{ 48 };
 
+// Default for the player's color is zero-initialized.
+constexpr bool PLAYER_COLOR_DEFAULT {};
+
 #define set_bit(b, i) ((b) |= (1ULL << i))
 #define get_bit(b, i) ((b) & (1ULL << i))
 #define clear_bit(b, i) ((b) &= ~(1ULL << i))
@@ -90,12 +93,14 @@ class GameData {
 	int m_halfmove_clock {};
 	int m_fullmove_number {};
 
-	// Computer pieces (1 - 
+	// Player's pieces color (1 - White, 0 - black)
+	bool m_player_color{};
 
 public:
 	// Some parts will be removed !!!!!!!!!!!!!!!!!!!!!
 	GameData(std::array<U64, 7> all_pieces_bitboards, U64 color, U64 white_pieces, U64 black_pieces, bool active_color, 
-		std::array<bool, 4> castling_values, std::string en_passant_target, int halfmove_clock, int fullmove_number)
+		std::array<bool, 4> castling_values, std::string en_passant_target, int halfmove_clock, int fullmove_number, 
+		bool player_color)
 		: m_all_pieces_bitboards { all_pieces_bitboards[0], all_pieces_bitboards[1], all_pieces_bitboards[2], 
 		all_pieces_bitboards[3], all_pieces_bitboards[4], all_pieces_bitboards[5], all_pieces_bitboards[6] }
 		, m_color { color }
@@ -109,6 +114,7 @@ public:
 		, m_en_passant_target { en_passant_target }
 		, m_halfmove_clock { halfmove_clock }
 		, m_fullmove_number{ fullmove_number }
+		, m_player_color{ player_color }
 	{
 	}
 
@@ -365,6 +371,16 @@ public:
 		}
 	}
 
+	// This function sets player's pieces color
+	void set_player_color(std::string pl_color) {
+		// Set the color depending on the input (w or b); Otherwise report an error.
+		if (pl_color == "w")                m_player_color = true;
+		else if (pl_color == "b")           m_player_color = false;
+		else								std::cout << "Wrong input!" << '\n';
+
+		std::cout << "Player color is: " << m_player_color << '\n';
+	}
+
 };
 
 // This function prints a human-readable ascii board representation.
@@ -514,7 +530,7 @@ GameData create_game_object_from_fen(std::string fen) {
 	// Create a game object setting all bitboards to empty (to be filled in the set_board_position func. with the values from
 	// the FEN) and the data that we extracted from the FEN.
 	GameData gameData{ ALL_PIECES_EMPTY, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, active_color, 
-					   castling_values, en_passant_target, halfmove_clock, fullmove_number };
+					   castling_values, en_passant_target, halfmove_clock, fullmove_number, PLAYER_COLOR_DEFAULT };
 	// Set bitboards according to the board position part of the FEN.
 	gameData.set_board_position(board);
 
@@ -528,7 +544,7 @@ GameData create_game_object_start_pos() {
 	// Create game object using starting position constants.
 	GameData gameData{ ALL_PIECES_START_POS, COLOR_START_POS, WHITE_PIECES_START_POS, BLACK_PIECES_START_POS, 
 					   ACTIVE_COLOR_START_POS, CASTLING_START_POS, EN_PASSANT_TARGET_START_POS, HALFMOVE_CLOCK_START_POS, 
-					   FULLMOVE_NUMBER_START_POS };
+					   FULLMOVE_NUMBER_START_POS, PLAYER_COLOR_DEFAULT };
 
 	// Return game object with the starting position.
 	return gameData;
@@ -540,11 +556,12 @@ int main()
 	// U64 test{ ~uint64_t(0) };
 	std::cout << "Please, enter the FEN or press enter to start the game from the beginning: ";
 	std::getline(std::cin, fen);
+	// Add "pl_color" value to the game class (1 - white, 0 - black);
+	GameData gameData = fen.length() > 5 ? create_game_object_from_fen(fen) : create_game_object_start_pos();
 	std::string pl_color{};
 	std::cout << "Please, enter w to choose white and b to choose black pieces: ";
 	std::getline(std::cin, pl_color);
-	// Add "pl_color" value to the game class (1 - white, 0 - black);
-	GameData gameData = fen.length() > 5 ? create_game_object_from_fen(fen) : create_game_object_start_pos();
+	gameData.set_player_color(pl_color);
 	std::cout << "All pieces:" << '\n';
 	gameData.print_the_board();
 	if (fen.length() > 5) {
