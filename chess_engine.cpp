@@ -335,6 +335,29 @@ public:
 		}
 	}
 
+	// This function makes a move on the bitboards.
+	void make_a_move_bitboards(int move_from, int move_to, std::size_t bitboard_number_from, std::size_t bitboard_number_to) {
+		// Replace with a constant.
+		// Only need to clear a bit if there was a capture and it was not the same type of pieces (same type of pieces are
+		// on the same bitboard).
+		if ((bitboard_number_to < 6) && (bitboard_number_to != bitboard_number_from))
+			clear_bit(m_all_pieces_bitboards[bitboard_number_to], move_to);
+		set_bit(m_all_pieces_bitboards[bitboard_number_from], move_to);
+		clear_bit(m_all_pieces_bitboards[bitboard_number_from], move_from);
+		if (m_active_color == true) {
+			clear_bit(m_black_pieces, move_to);
+			set_bit(m_white_pieces, move_to);
+			clear_bit(m_white_pieces, move_from);
+			set_bit(m_color, move_to);
+			clear_bit(m_color, move_from);
+		}
+		else {
+			clear_bit(m_color, move_to);
+			set_bit(m_black_pieces, move_to);
+			clear_bit(m_black_pieces, move_from);
+		}
+	}
+
 	// This function makes a move on all bitboards.
 	void make_a_move(std::string move) {
 		std::cout << move << '\n';
@@ -346,29 +369,18 @@ public:
 		int move_to = string_to_bit(move_split[1]);
 		std::cout << "From: " << move_from << " To: " << move_to << '\n';
 		// Return the number of the bitboard that has a piece on that position.
-		std::size_t bitboard_number = get_bitboard(move_from);
+		std::size_t bitboard_number_from = get_bitboard(move_from);
 		// If bitboard number is equal 6, we reached the sentinel value, meaning there is no piece on the "from" square on 
 		// any of the bitboards. Throw an exception and report an error. 
 		try {
-			if (bitboard_number == 6)
+			if (bitboard_number_from == 6)
 				throw "there is no bitboard with a piece in that square.";
 		}
 		catch (const char* exception) {
 			std::cerr << "Error: " << exception << '\n';
 		}
-		// Make a move by setting all the required bitboards.
-		set_bit(m_all_pieces_bitboards[bitboard_number], move_to);
-		clear_bit(m_all_pieces_bitboards[bitboard_number], move_from);
-		if (m_active_color == true) {
-			set_bit(m_white_pieces, move_to);
-			clear_bit(m_white_pieces, move_from);
-			set_bit(m_color, move_to);
-			clear_bit(m_color, move_from);
-		}
-		else {
-			set_bit(m_black_pieces, move_to);
-			clear_bit(m_black_pieces, move_from);
-		}
+		std::size_t bitboard_number_to = get_bitboard(move_to);
+		make_a_move_bitboards(move_from, move_to, bitboard_number_from, bitboard_number_to);
 	}
 
 	// This function sets player's pieces color
