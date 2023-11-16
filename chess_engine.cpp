@@ -381,6 +381,8 @@ public:
 		}
 		std::size_t bitboard_number_to = get_bitboard(move_to);
 		make_a_move_bitboards(move_from, move_to, bitboard_number_from, bitboard_number_to);
+		m_active_color = !m_active_color;
+		std::cout << "Active color is: " << m_active_color << '\n';
 	}
 
 	// This function sets player's pieces color
@@ -393,6 +395,20 @@ public:
 		std::cout << "Player color is: " << m_player_color << '\n';
 	}
 
+	// This function represents a game loop.
+	void game_loop() {
+		std::string move{};
+		while (true) {
+			if (m_active_color == m_player_color) {
+				std::cout << "Please, enter the next move: ";
+				std::getline(std::cin, move);
+				if (move == "0") break;
+				make_a_move(move);
+				print_the_board();
+				print_bitboards();
+			}
+		}
+	}
 };
 
 // This function prints a human-readable ascii board representation.
@@ -579,14 +595,7 @@ int main()
 	if (fen.length() > 5) {
 		std::cout << "FEN is: " << fen << std::endl;
 	}
-	std::string move{};
-	while (move != "0") {
-		std::cout << "Please, enter the next move: ";
-		std::getline(std::cin, move);
-		gameData.make_a_move(move);
-		gameData.print_the_board();
-		gameData.print_bitboards();
-	}
+	gameData.game_loop();
 	//std::vector <std::pair<size_t, size_t>> piece_moves = {};
 	//print_board_ascii(game);
 	//print_board_ascii(game);
