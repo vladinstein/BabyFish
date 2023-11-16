@@ -580,10 +580,13 @@ int main()
 		std::cout << "FEN is: " << fen << std::endl;
 	}
 	std::string move{};
-	std::cout << "Please, enter the next move: ";
-	std::getline(std::cin, move);
-	gameData.make_a_move(move);
-	gameData.print_the_board();
+	while (move != "0") {
+		std::cout << "Please, enter the next move: ";
+		std::getline(std::cin, move);
+		gameData.make_a_move(move);
+		gameData.print_the_board();
+		gameData.print_bitboards();
+	}
 	//std::vector <std::pair<size_t, size_t>> piece_moves = {};
 	//print_board_ascii(game);
 	//print_board_ascii(game);
@@ -593,6 +596,5 @@ int main()
 	//for (std::pair<size_t, size_t> pawn_move : piece_moves)
 	//	std::cout << pawn_move.first << pawn_move.second << std::endl;
 	gameData.struct_to_fen();
-	gameData.print_bitboards();
 	return 0;
 }
