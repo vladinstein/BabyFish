@@ -289,6 +289,8 @@ public:
 	void print_bitboards() const {
 		std::cout << "All bitboards in the array: " << '\n';
 		print_bitboard(all_bitboards);
+		print_bitboard(m_white_pieces);
+		print_bitboard(m_black_pieces);
 	}
 
 	// This function splits the UCI move string into a vector of 2 or 3 separate strings (2 for each square and 1 for 
@@ -400,6 +402,27 @@ public:
 		std::cout << "Player color is: " << m_player_color << '\n';
 	}
 
+	// Function that gets positions of all white/black pieces.
+	std::vector<int> get_square_numbers() {
+		std::vector<int> square_numbers;
+		if (m_active_color == 1) {
+			for (int i = 0; i < 64; ++i) {
+				if (get_bit(m_white_pieces, i)) {
+					square_numbers.push_back(i);
+				}
+			}
+		}
+		else {
+			for (int i = 0; i < 64; ++i) {
+				if (get_bit(m_black_pieces, i)) {
+					square_numbers.push_back(i);
+				}
+			}
+		}
+		std::cout << square_numbers.size() << '\n';
+		return square_numbers;
+	}
+
 	// This function represents a game loop.
 	void game_loop() {
 		std::string move{};
@@ -414,6 +437,14 @@ public:
 				make_a_move(move_from, move_to);
 				print_the_board();
 				print_bitboards();
+			}
+			else {
+				// Get all the square numbers with pieces for the active color.
+				std::vector<int> square_numbers = get_square_numbers();
+				std::cout << "All white/black pieces: " << '\n';
+				for (int x : square_numbers)
+					std::cout << x << '\n';
+				break;
 			}
 		}
 	}
