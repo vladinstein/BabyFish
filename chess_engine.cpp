@@ -358,8 +358,8 @@ public:
 		}
 	}
 
-	// This function makes a move on all bitboards.
-	void make_a_move(std::string move) {
+	// This function converts move string to 2 integers representing "move from" and "move to" positions on the bitboards.
+	std::tuple<int, int> move_string_to_int(std::string move) {
 		std::cout << move << '\n';
 		// Split the move string into an array of strings ("from" square, "to" square, and, if needed, promotion piece type).
 		std::vector<std::string> move_split{ split_move(move) };
@@ -369,6 +369,11 @@ public:
 		int move_to = string_to_bit(move_split[1]);
 		std::cout << "From: " << move_from << " To: " << move_to << '\n';
 		// Return the number of the bitboard that has a piece on that position.
+		return std::tuple <int, int> (move_from, move_to);
+	}
+
+	// This function makes a move on all bitboards.
+	void make_a_move(int move_from, int move_to) {
 		std::size_t bitboard_number_from = get_bitboard(move_from);
 		// If bitboard number is equal 6, we reached the sentinel value, meaning there is no piece on the "from" square on 
 		// any of the bitboards. Throw an exception and report an error. 
@@ -403,7 +408,10 @@ public:
 				std::cout << "Please, enter the next move: ";
 				std::getline(std::cin, move);
 				if (move == "0") break;
-				make_a_move(move);
+				int move_from {};
+				int move_to {};
+				std::tie(move_from, move_to) = move_string_to_int(move);
+				make_a_move(move_from, move_to);
 				print_the_board();
 				print_bitboards();
 			}
