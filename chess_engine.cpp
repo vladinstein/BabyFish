@@ -15,7 +15,7 @@ typedef uint64_t U64;
 // Empty bitboard.
 constexpr U64 EMPTY_BITBOARD{ 0x00000000000000ULL };
 const std::array<U64, 7> ALL_PIECES_EMPTY{ 0x00000000000000ULL, 0x00000000000000ULL, 0x00000000000000ULL,
-0x00000000000000ULL, 0x00000000000000ULL, 0x00000000000000ULL, 0x00000000000000ULL };
+0x00000000000000ULL, 0x00000000000000ULL, 0x00000000000000ULL, 0xFFFFFFFFFFFFFFFFULL };
 
 // Starting bitboards.
 const std::array<U64, 7> ALL_PIECES_START_POS{ 0xFF00000000FF00ULL, 0x4200000000000042ULL, 0x2400000000000024ULL,
@@ -403,25 +403,62 @@ public:
 		std::cout << "Player color is: " << m_player_color << '\n';
 	}
 
-	// Function that gets positions of all white/black pieces.
-	std::vector<int> get_square_numbers() {
-		std::vector<int> square_numbers;
-		if (m_active_color == 1) {
+	// This function make the player's move. It returns 0 if the correct move was entered, it returns 1 if 0 was entered to
+	// stop the game. 
+	int make_players_move(std::string move) {
+		std::cout << "Please, enter the next move: ";
+		std::getline(std::cin, move);
+		if (move == "0") return 1;
+		int move_from{};
+		int move_to{};
+		std::tie(move_from, move_to) = move_string_to_int(move);
+		make_a_move(move_from, move_to);
+		return 0;
+	}
+
+
+	// Function that gets positions of all computer pieces.
+	std::vector<int> get_comp_square_numbers() const {
+		std::vector<int> comp_square_numbers;
+		// If player is playing black pieces, get positions of all white pieces (computer's pieces). 
+		if (m_player_color == 0) {
 			for (int i = 0; i < 64; ++i) {
 				if (get_bit(m_white_pieces, i)) {
-					square_numbers.push_back(i);
+					comp_square_numbers.push_back(i);
 				}
 			}
 		}
+		// If player is playing white pieces, get positions of all black pieces for the comp. 
 		else {
 			for (int i = 0; i < 64; ++i) {
 				if (get_bit(m_black_pieces, i)) {
-					square_numbers.push_back(i);
+					comp_square_numbers.push_back(i);
 				}
 			}
 		}
-		std::cout << square_numbers.size() << '\n';
-		return square_numbers;
+		return comp_square_numbers;
+	}
+
+	// Function that gets positions of all player pieces and empty squares depending on what computer is playing.
+	std::vector<int> get_pl_and_empty_square_numbers() const {
+		std::vector<int> comp_square_numbers;
+		// If player is playing black pieces, get positions of all white pieces (computer's pieces). 
+		if (m_player_color == 0) {
+			for (int i = 0; i < 64; ++i) {
+				if (!get_bit(m_white_pieces, i)) {
+					comp_square_numbers.push_back(i);
+				}
+			}
+		}
+		// If player is playing white pieces, get positions of all black pieces for the comp. 
+		else {
+			for (int i = 0; i < 64; ++i) {
+				if (!get_bit(m_black_pieces, i)) {
+					comp_square_numbers.push_back(i);
+				}
+			}
+		}
+		return comp_square_numbers;
 	}
 
 	// This function represents a game loop.
@@ -430,31 +467,35 @@ public:
 		while (true) {
 			// Player's move if active color matches his color.
 			if (m_active_color == m_player_color) {
-				std::cout << "Please, enter the next move: ";
-				std::getline(std::cin, move);
-				if (move == "0") break;
-				int move_from {};
-				int move_to {};
-				std::tie(move_from, move_to) = move_string_to_int(move);
-				make_a_move(move_from, move_to);
+				// Make player's move. Zero check checks if the input was "0", which stops the game loop.
+				int zero_check = make_players_move(move);
+				if (zero_check == 1) break;
 				print_the_board();
 				print_bitboards();
 			}
 			// Otherwise it's computer's move.
 			else {
 				// Get all the square numbers with pieces for the active color.
-				std::vector<int> square_numbers = get_square_numbers();
+				std::vector<int> comp_square_numbers = get_comp_square_numbers();
+				std::cout << "Size of the computer pieces array: " << comp_square_numbers.size() << '\n';
 				std::cout << "All white/black pieces: " << '\n';
-				for (int x : square_numbers)
+				for (int x : comp_square_numbers)
 					std::cout << x << '\n';
 				// Vector for keeping the chosen random square.
-				std::vector<int> random;
+				std::vector<int> random_move_from;
 				// Number of random elements required.
 				size_t num_elems{ 1 };
 				// Choose one random element from the vector containing squares with pieces on them.
-				std::sample(square_numbers.begin(), square_numbers.end(), std::back_inserter(random),
+				// https://stackoverflow.com/questions/6942273/how-to-get-a-random-element-from-a-c-container/42484107#42484107
+				std::sample(comp_square_numbers.begin(), comp_square_numbers.end(), std::back_inserter(random_move_from),
 							num_elems, std::mt19937{ std::random_device{}() });
-				std::cout << "Random square: " << random[0] << '\n';
+				std::cout << "Random square: " << random_move_from[0] << '\n';
+				// Choose "move to" from empty squares and opposition pieces randomly.
+				std::vector<int> pl_and_empty_square_numbers = get_pl_and_empty_square_numbers();
+				std::cout << "Size of the player pieces and empty squares array: " << pl_and_empty_square_numbers.size() << '\n';
+				std::cout << "All player pieces and empty squares: " << '\n';
+				for (int x : pl_and_empty_square_numbers)
+					std::cout << x << '\n';
 				break;
 			}
 		}
