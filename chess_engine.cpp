@@ -8,6 +8,7 @@
 #include <utility>
 #include <bitset>
 #include <algorithm>
+#include <random>
 
 typedef uint64_t U64;
 
@@ -427,6 +428,7 @@ public:
 	void game_loop() {
 		std::string move{};
 		while (true) {
+			// Player's move if active color matches his color.
 			if (m_active_color == m_player_color) {
 				std::cout << "Please, enter the next move: ";
 				std::getline(std::cin, move);
@@ -438,12 +440,21 @@ public:
 				print_the_board();
 				print_bitboards();
 			}
+			// Otherwise it's computer's move.
 			else {
 				// Get all the square numbers with pieces for the active color.
 				std::vector<int> square_numbers = get_square_numbers();
 				std::cout << "All white/black pieces: " << '\n';
 				for (int x : square_numbers)
 					std::cout << x << '\n';
+				// Vector for keeping the chosen random square.
+				std::vector<int> random;
+				// Number of random elements required.
+				size_t num_elems{ 1 };
+				// Choose one random element from the vector containing squares with pieces on them.
+				std::sample(square_numbers.begin(), square_numbers.end(), std::back_inserter(random),
+							num_elems, std::mt19937{ std::random_device{}() });
+				std::cout << "Random square: " << random[0] << '\n';
 				break;
 			}
 		}
