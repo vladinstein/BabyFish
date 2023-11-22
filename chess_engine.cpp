@@ -290,7 +290,9 @@ public:
 	void print_bitboards() const {
 		std::cout << "All bitboards in the array: " << '\n';
 		print_bitboard(all_bitboards);
+		std::cout << "White pieces: " << '\n';
 		print_bitboard(m_white_pieces);
+		std::cout << "Black pieces: " << '\n';
 		print_bitboard(m_black_pieces);
 	}
 
@@ -461,6 +463,19 @@ public:
 		return comp_square_numbers;
 	}
 
+	// Function to get a random square from the vector of squares.
+	int get_random_square(std::vector<int> squares_numbers) {
+		// Vector for keeping the chosen random square.
+		std::vector<int> random_move_from;
+		// Number of random elements required.
+		size_t num_elems{ 1 };
+		// Choose one random element from the vector containing squares with pieces on them.
+		// https://stackoverflow.com/questions/6942273/how-to-get-a-random-element-from-a-c-container/42484107#42484107
+		std::sample(squares_numbers.begin(), squares_numbers.end(), std::back_inserter(random_move_from),
+			num_elems, std::mt19937{ std::random_device{}() });
+		return random_move_from[0];
+	}
+
 	// This function represents a game loop.
 	void game_loop() {
 		std::string move{};
@@ -477,26 +492,24 @@ public:
 			else {
 				// Get all the square numbers with pieces for the active color.
 				std::vector<int> comp_square_numbers = get_comp_square_numbers();
-				std::cout << "Size of the computer pieces array: " << comp_square_numbers.size() << '\n';
 				std::cout << "All white/black pieces: " << '\n';
 				for (int x : comp_square_numbers)
-					std::cout << x << '\n';
-				// Vector for keeping the chosen random square.
-				std::vector<int> random_move_from;
-				// Number of random elements required.
-				size_t num_elems{ 1 };
-				// Choose one random element from the vector containing squares with pieces on them.
-				// https://stackoverflow.com/questions/6942273/how-to-get-a-random-element-from-a-c-container/42484107#42484107
-				std::sample(comp_square_numbers.begin(), comp_square_numbers.end(), std::back_inserter(random_move_from),
-							num_elems, std::mt19937{ std::random_device{}() });
-				std::cout << "Random square: " << random_move_from[0] << '\n';
+					std::cout << x << ' ';
+				std::cout << '\n';
+				int random_move_from = get_random_square(comp_square_numbers);
 				// Choose "move to" from empty squares and opposition pieces randomly.
 				std::vector<int> pl_and_empty_square_numbers = get_pl_and_empty_square_numbers();
-				std::cout << "Size of the player pieces and empty squares array: " << pl_and_empty_square_numbers.size() << '\n';
 				std::cout << "All player pieces and empty squares: " << '\n';
 				for (int x : pl_and_empty_square_numbers)
-					std::cout << x << '\n';
-				break;
+					std::cout << x << ' ';
+				std::cout << '\n';
+				// Choose a random square from all the empty squares and squares with opponent's pieces on them.
+				int random_move_to = get_random_square(pl_and_empty_square_numbers);
+				std::cout << "Comp move: " << random_move_from << ' ' << random_move_to << '\n';
+				// Make a move.
+				make_a_move(random_move_from, random_move_to);
+				print_the_board();
+				print_bitboards();
 			}
 		}
 	}
