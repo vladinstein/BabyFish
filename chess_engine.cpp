@@ -418,6 +418,26 @@ public:
 		return 0;
 	}
 
+	std::tuple <int, int> generate_random_move_comp () {
+		std::vector<int> comp_square_numbers = get_comp_square_numbers();
+		std::cout << "All white/black pieces: " << '\n';
+		for (int x : comp_square_numbers)
+			std::cout << x << ' ';
+		std::cout << '\n';
+		int random_move_from = get_random_square(comp_square_numbers);
+		// Choose "move to" from empty squares and opposition pieces randomly.
+		std::vector<int> pl_and_empty_square_numbers = get_pl_and_empty_square_numbers();
+		std::cout << "All player pieces and empty squares: " << '\n';
+		for (int x : pl_and_empty_square_numbers)
+			std::cout << x << ' ';
+		std::cout << '\n';
+		// Choose a random square from all the empty squares and squares with opponent's pieces on them.
+		int random_move_to = get_random_square(pl_and_empty_square_numbers);
+		std::cout << "Comp move: " << random_move_from << ' ' << random_move_to << '\n';
+		return std::tuple <int, int>(random_move_from, random_move_to);
+	}
+
+
 
 	// Function that gets positions of all computer pieces.
 	std::vector<int> get_comp_square_numbers() const {
@@ -490,22 +510,10 @@ public:
 			}
 			// Otherwise it's computer's move.
 			else {
-				// Get all the square numbers with pieces for the active color.
-				std::vector<int> comp_square_numbers = get_comp_square_numbers();
-				std::cout << "All white/black pieces: " << '\n';
-				for (int x : comp_square_numbers)
-					std::cout << x << ' ';
-				std::cout << '\n';
-				int random_move_from = get_random_square(comp_square_numbers);
-				// Choose "move to" from empty squares and opposition pieces randomly.
-				std::vector<int> pl_and_empty_square_numbers = get_pl_and_empty_square_numbers();
-				std::cout << "All player pieces and empty squares: " << '\n';
-				for (int x : pl_and_empty_square_numbers)
-					std::cout << x << ' ';
-				std::cout << '\n';
-				// Choose a random square from all the empty squares and squares with opponent's pieces on them.
-				int random_move_to = get_random_square(pl_and_empty_square_numbers);
-				std::cout << "Comp move: " << random_move_from << ' ' << random_move_to << '\n';
+				int random_move_from{};															// "move from" coord.
+				int random_move_to{};															// "move to" coord.
+				// Generate random move for computer.
+				std::tie(random_move_from, random_move_to) = generate_random_move_comp();
 				// Make a move.
 				make_a_move(random_move_from, random_move_to);
 				print_the_board();
