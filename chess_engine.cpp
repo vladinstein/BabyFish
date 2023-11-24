@@ -119,6 +119,119 @@ public:
 	{
 	}
 
+	//This fuction replaces digits in the FEN with a number of zeros (1 with 1 zero, 2 - with 2 zeros, 3 - 3 zeros etc)
+	static std::string replace_digits_with_zeros(std::string board) {
+		//Find first occurance of digits in the FEN-string.
+		std::size_t found = board.find_first_of("0123456789");
+		// Keep going until done.
+		while (found != std::string::npos) {
+			// This turns the digit char into an integer.
+			int empty_squares_digit = board[found] - '0';
+			// Turning the integer into size_t to be able to create a string with it (this will be the length of the string).
+			// (!!!!!) Need an error-check function here (!!!!!)
+			// Check if it's positive.
+			std::size_t zeros_length = static_cast<unsigned int>(empty_squares_digit);
+			// Creating a string with appropriate number of zeros.
+			std::string zeros(zeros_length, '0');
+			// Replacing a digit with an appropriate number of zeros.
+			board.replace(found, 1, zeros);
+			// Find next occurance of any of the digits.
+			found = board.find_first_of("0123456789", found + zeros_length);
+		}
+		return board;
+	}
+
+
+	// This function returns castling values from the current FEN-string.
+	static std::array<bool, 4> get_castling_values(std::string fen_castling, std::array<bool, 4> castling_values) {
+		// Castling values are initialized to false, so if we see a particular castling value letter in a string, the
+		// appropriate value is set to true. 
+		for (char& castling_char : fen_castling) {
+			switch (castling_char) {
+			case 'K':
+				castling_values[0] = true;
+				break;
+			case 'k':
+				castling_values[1] = true;
+				break;
+			case 'Q':
+				castling_values[2] = true;
+				break;
+			case 'q':
+				castling_values[3] = true;
+				break;
+			}
+		}
+		return castling_values;
+	}
+
+	// This function returns all the data from the FEN-string.
+	static std::tuple<std::string, std::array<bool, 4>, bool, std::string, int, int> extract_values_from_fen(std::string fen,
+		std::string board, std::array<bool, 4> castling_values, bool active_color, std::string en_passant_target,
+		int halfmove_clock, int fullmove_number) {
+
+		// Turn the string into istringstream to extract data.
+		std::istringstream ssfen(fen);
+
+		// Create two string variables to hold castling and active color strings for future use.
+		std::string castling_string{};
+		std::string active_color_str{};
+
+		// Extract all the data from the istringstream into the variables.
+		ssfen >> board >> active_color_str >> castling_string >> en_passant_target >> halfmove_clock >> fullmove_number;
+		// Use a map to set active color bool value from active color string.
+		std::map<std::string, bool> color_map{ {"b", false}, {"w", true} };
+		active_color = color_map[active_color_str];
+		// Use function to get castling values from castling value string.
+		castling_values = get_castling_values(castling_string, castling_values);
+		// Remove slashes and replace all digits with appropriate number of zeros (3 becomes "000" etc) to be able to 
+		// loop through the string and put values directly to the bitboards.
+		board.erase(std::remove(board.begin(), board.end(), '/'), board.end());
+		board = replace_digits_with_zeros(board);
+
+		// Return all the extracted data.
+		return std::make_tuple(board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number);
+	}
+
+	// Function that creates game object from the FEN string.
+	static GameData create_game_object_from_fen(std::string fen) {
+
+		// Zero - initialize all the variables we are going to use for FEN data except:
+		// castling values are init. to false due to the design of the get_castling_values func.
+		std::string board{};
+		std::array<bool, 4> castling_values = { false, false, false, false };
+		bool active_color{};
+		std::string en_passant_target{};
+		int halfmove_clock{};
+		int fullmove_number{};
+
+		// Get the values for those variables using extract_values_from_fen func.
+		std::tie(board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number) = extract_values_from_fen(fen,
+			board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number);
+
+		// Create a game object setting all bitboards to empty (to be filled in the set_board_position func. with the values from
+		// the FEN) and the data that we extracted from the FEN.
+		GameData gameData{ ALL_PIECES_EMPTY, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, active_color,
+						   castling_values, en_passant_target, halfmove_clock, fullmove_number, PLAYER_COLOR_DEFAULT };
+		// Set bitboards according to the board position part of the FEN.
+		gameData.set_board_position(board);
+
+		// Return game object created using FEN string.
+		return gameData;
+	}
+
+	// This function creates game object for the starting position.
+	static GameData create_game_object_start_pos() {
+
+		// Create game object using starting position constants.
+		GameData gameData{ ALL_PIECES_START_POS, COLOR_START_POS, WHITE_PIECES_START_POS, BLACK_PIECES_START_POS,
+						   ACTIVE_COLOR_START_POS, CASTLING_START_POS, EN_PASSANT_TARGET_START_POS, HALFMOVE_CLOCK_START_POS,
+						   FULLMOVE_NUMBER_START_POS, PLAYER_COLOR_DEFAULT };
+
+		// Return game object with the starting position.
+		return gameData;
+	}
+
 	// Function setting the board position from the FEN-string via the bitboards.
 	void set_board_position(std::string board) {
 		// Map connecting FEN string values with pointers to particular bitboards.
@@ -578,118 +691,6 @@ public:
 //	return white_pawn_moves;
 //}
 
-//This fuction replaces digits in the FEN with a number of zeros (1 with 1 zero, 2 - with 2 zeros, 3 - 3 zeros etc)
-std::string replace_digits_with_zeros(std::string board) {
-	//Find first occurance of digits in the FEN-string.
-	std::size_t found = board.find_first_of("0123456789");
-	// Keep going until done.
-	while (found != std::string::npos) {
-		// This turns the digit char into an integer.
-		int empty_squares_digit = board[found] - '0';
-		// Turning the integer into size_t to be able to create a string with it (this will be the length of the string).
-		// (!!!!!) Need an error-check function here (!!!!!)
-		// Check if it's positive.
-		std::size_t zeros_length = static_cast<unsigned int>(empty_squares_digit);
-		// Creating a string with appropriate number of zeros.
-		std::string zeros(zeros_length, '0');
-		// Replacing a digit with an appropriate number of zeros.
-		board.replace(found, 1, zeros);
-		// Find next occurance of any of the digits.
-		found = board.find_first_of("0123456789", found + zeros_length);
-	}
-	return board;
-}
-
-// This function returns castling values from the current FEN-string.
-std::array<bool, 4> get_castling_values(std::string fen_castling, std::array<bool, 4> castling_values) {
-	// Castling values are initialized to false, so if we see a particular castling value letter in a string, the
-	// appropriate value is set to true. 
-	for (char& castling_char : fen_castling) {
-		switch (castling_char) {
-		case 'K':
-			castling_values[0] = true;
-			break;
-		case 'k':
-			castling_values[1] = true;
-			break;
-		case 'Q':
-			castling_values[2] = true;
-			break;
-		case 'q':
-			castling_values[3] = true;
-			break;
-		}
-	}
-	return castling_values;
-}
-
-// This function returns all the data from the FEN-string.
-std::tuple<std::string, std::array<bool, 4>, bool, std::string, int, int> extract_values_from_fen(std::string fen, 
-	std::string board, std::array<bool, 4> castling_values, bool active_color, std::string en_passant_target, 
-	int halfmove_clock, int fullmove_number) {
-
-	// Turn the string into istringstream to extract data.
-	std::istringstream ssfen(fen);
-
-	// Create two string variables to hold castling and active color strings for future use.
-	std::string castling_string{};
-	std::string active_color_str{};
-
-	// Extract all the data from the istringstream into the variables.
-	ssfen >> board >> active_color_str >> castling_string >> en_passant_target >> halfmove_clock >> fullmove_number;
-	// Use a map to set active color bool value from active color string.
-	std::map<std::string, bool> color_map{ {"b", false}, {"w", true} };
-	active_color = color_map[active_color_str];
-	// Use function to get castling values from castling value string.
-	castling_values = get_castling_values(castling_string, castling_values);
-	// Remove slashes and replace all digits with appropriate number of zeros (3 becomes "000" etc) to be able to 
-	// loop through the string and put values directly to the bitboards.
-	board.erase(std::remove(board.begin(), board.end(), '/'), board.end());
-	board = replace_digits_with_zeros(board);
-
-	// Return all the extracted data.
-	return std::make_tuple(board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number);
-}
-
-// Function that creates game object from the FEN string.
-GameData create_game_object_from_fen(std::string fen) {
-
-	// Zero - initialize all the variables we are going to use for FEN data except:
-	// castling values are init. to false due to the design of the get_castling_values func.
-	std::string board{};
-	std::array<bool, 4> castling_values = { false, false, false, false };
-	bool active_color{};
-	std::string en_passant_target{};
-	int halfmove_clock{};
-	int fullmove_number{};
-
-	// Get the values for those variables using extract_values_from_fen func.
-	std::tie(board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number) = extract_values_from_fen(fen,
-		board, castling_values, active_color, en_passant_target, halfmove_clock, fullmove_number);
-
-	// Create a game object setting all bitboards to empty (to be filled in the set_board_position func. with the values from
-	// the FEN) and the data that we extracted from the FEN.
-	GameData gameData{ ALL_PIECES_EMPTY, EMPTY_BITBOARD, EMPTY_BITBOARD, EMPTY_BITBOARD, active_color, 
-					   castling_values, en_passant_target, halfmove_clock, fullmove_number, PLAYER_COLOR_DEFAULT };
-	// Set bitboards according to the board position part of the FEN.
-	gameData.set_board_position(board);
-
-	// Return game object created using FEN string.
-	return gameData;
-}
-
-// This function creates game object for the starting position.
-GameData create_game_object_start_pos() {
-
-	// Create game object using starting position constants.
-	GameData gameData{ ALL_PIECES_START_POS, COLOR_START_POS, WHITE_PIECES_START_POS, BLACK_PIECES_START_POS, 
-					   ACTIVE_COLOR_START_POS, CASTLING_START_POS, EN_PASSANT_TARGET_START_POS, HALFMOVE_CLOCK_START_POS, 
-					   FULLMOVE_NUMBER_START_POS, PLAYER_COLOR_DEFAULT };
-
-	// Return game object with the starting position.
-	return gameData;
-}
-
 int main()
 {
 	std::string fen{};
@@ -697,7 +698,7 @@ int main()
 	std::cout << "Please, enter the FEN or press enter to start the game from the beginning: ";
 	std::getline(std::cin, fen);
 	// Add "pl_color" value to the game class (1 - white, 0 - black);
-	GameData gameData = fen.length() > 5 ? create_game_object_from_fen(fen) : create_game_object_start_pos();
+	GameData gameData = fen.length() > 5 ? GameData::create_game_object_from_fen(fen) : GameData::create_game_object_start_pos();
 	std::string pl_color{};
 	std::cout << "Please, enter w to choose white and b to choose black pieces: ";
 	std::getline(std::cin, pl_color);
