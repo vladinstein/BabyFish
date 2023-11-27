@@ -493,14 +493,20 @@ public:
 	// This function makes a move on all bitboards.
 	void make_a_move(int move_from, int move_to) {
 		std::size_t bitboard_number_from = get_bitboard(move_from);
-		// If bitboard number is equal 6, we reached the sentinel value, meaning there is no piece on the "from" square on 
-		// any of the bitboards. Throw an exception and report an error. 
+
 		try {
+			// If bitboard number is equal 6, we reached the sentinel value, meaning there is no piece on the "from" square on 
+			// any of the bitboards. Throw an exception and report an error. 
 			if (bitboard_number_from == 6)
 				throw "there is no bitboard with a piece in that square.";
+			// Check if the move from is a coordinate of a player's piece. Otherwise throw an error.
+			else if ((m_active_color && !get_bit(m_white_pieces, move_from)) || (!m_active_color && !get_bit(m_black_pieces, move_from)))
+				throw "there is no piece of your color in that square.";
 		}
 		catch (const char* exception) {
 			std::cerr << "Error: " << exception << '\n';
+			// Stop execution of the function.
+			return;
 		}
 		std::size_t bitboard_number_to = get_bitboard(move_to);
 		make_a_move_bitboards(move_from, move_to, bitboard_number_from, bitboard_number_to);
