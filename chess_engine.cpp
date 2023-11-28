@@ -73,8 +73,6 @@ enum {
 "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
 */
 
-std::string replace_digits_with_zeros(std::string fen);
-
 // This is a struct containing the game data.
 class GameData {
 
@@ -489,11 +487,29 @@ public:
 		// Return the number of the bitboard that has a piece on that position.
 		return std::tuple <int, int> (move_from, move_to);
 	}
+	
+	std::vector<int> get_white_pawn_moves(int move_from) {
+		std::vector<int> legit_moves {};
+		if (!get_bit(all_pieces,(move_from - 8)))
+			legit_moves.push_back(move_from - 8);
+		return legit_moves;
+	}
+
+	std::vector<int> get_legit_moves(size_t bitboard_number_from, int move_from) {
+		std::vector<int> legit_moves{};
+		if (bitboard_number_from == 0 && m_active_color == 1) {
+			legit_moves = get_white_pawn_moves(move_from);
+		}
+		legit_moves.push_back(1000);
+		return legit_moves;
+	}
 
 	// This function makes a move on all bitboards.
 	void make_a_move(int move_from, int move_to) {
 		std::size_t bitboard_number_from = get_bitboard(move_from);
-
+		std::cout << "Moving from bitboard number: " << bitboard_number_from << '\n';
+		std::vector<int> legit_moves = get_legit_moves(bitboard_number_from, move_from);
+		std::cout << "Legit moves: " << legit_moves[0] << '\n';
 		try {
 			// If bitboard number is equal 6, we reached the sentinel value, meaning there is no piece on the "from" square on 
 			// any of the bitboards. Throw an exception and report an error. 
