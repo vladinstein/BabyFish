@@ -488,19 +488,45 @@ public:
 		return std::tuple <int, int> (move_from, move_to);
 	}
 	
+	// Function that returns white pawn moves.
 	std::vector<int> get_white_pawn_moves(int move_from) {
 		std::vector<int> legit_moves {};
-		if (!get_bit(all_pieces,(move_from - 8)))
+		if (!get_bit(all_pieces, (move_from - 8))) {
 			legit_moves.push_back(move_from - 8);
+			if ((move_from > 47 && move_from < 56) && (!get_bit(all_pieces, (move_from - 16))))
+				legit_moves.push_back(move_from - 16);
+		if (get_bit(m_black_pieces, (move_from - 9)))
+			legit_moves.push_back(move_from - 9);
+		if (get_bit(m_black_pieces, (move_from - 7)))
+			legit_moves.push_back(move_from - 7);
+		}
 		return legit_moves;
 	}
 
+	// Function that returns black pawn moves.
+	std::vector<int> get_black_pawn_moves(int move_from) {
+		std::vector<int> legit_moves{};
+		if (!get_bit(all_pieces, (move_from + 8))) {
+			legit_moves.push_back(move_from + 8);
+			if ((move_from > 7 && move_from < 16) && (!get_bit(all_pieces, (move_from + 16))))
+				legit_moves.push_back(move_from + 16);
+			if (get_bit(m_white_pieces, (move_from + 9)))
+				legit_moves.push_back(move_from + 9);
+			if (get_bit(m_white_pieces, (move_from + 7)))
+				legit_moves.push_back(move_from + 7);
+		}
+		return legit_moves;
+	}
+
+	// Function that returns all legit moves.
 	std::vector<int> get_legit_moves(size_t bitboard_number_from, int move_from) {
 		std::vector<int> legit_moves{};
 		if (bitboard_number_from == 0 && m_active_color == 1) {
 			legit_moves = get_white_pawn_moves(move_from);
 		}
-		legit_moves.push_back(1000);
+		else if (bitboard_number_from == 0 && m_active_color == 0) {
+			legit_moves = get_black_pawn_moves(move_from);
+		}
 		return legit_moves;
 	}
 
@@ -509,7 +535,11 @@ public:
 		std::size_t bitboard_number_from = get_bitboard(move_from);
 		std::cout << "Moving from bitboard number: " << bitboard_number_from << '\n';
 		std::vector<int> legit_moves = get_legit_moves(bitboard_number_from, move_from);
-		std::cout << "Legit moves: " << legit_moves[0] << '\n';
+		std::cout << "Legit moves: ";
+		for (size_t i = legit_moves.size(); i--;) {
+			std::string orphography = (i == 0) ? ";\n" : ", ";
+			std::cout << legit_moves[i] << orphography;
+		}
 		try {
 			// If bitboard number is equal 6, we reached the sentinel value, meaning there is no piece on the "from" square on 
 			// any of the bitboards. Throw an exception and report an error. 
@@ -518,6 +548,8 @@ public:
 			// Check if the move from is a coordinate of a player's piece. Otherwise throw an error.
 			else if ((m_active_color && !get_bit(m_white_pieces, move_from)) || (!m_active_color && !get_bit(m_black_pieces, move_from)))
 				throw "there is no piece of your color in that square.";
+			else if (std::find(legit_moves.begin(), legit_moves.end(), move_to) == legit_moves.end())
+				throw "this is not a legit move!";
 		}
 		catch (const char* exception) {
 			std::cerr << "Error: " << exception << '\n';
