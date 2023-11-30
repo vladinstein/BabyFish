@@ -45,6 +45,11 @@ constexpr bool PLAYER_COLOR_DEFAULT {};
 #define get_bit(b, i) ((b) & (1ULL << i))
 #define clear_bit(b, i) ((b) &= ~(1ULL << i))
 
+#define one_square_up(i) (i - 8)
+#define two_squares_up(i) (i - 16)
+#define one_square_left_up(i) (i - 9)
+#define one_square_right_up(i) (i - 7)
+
 #define all_pieces m_white_pieces | m_black_pieces
 #define all_bitboards m_all_pieces_bitboards[0] | m_all_pieces_bitboards[1] | m_all_pieces_bitboards[2] | m_all_pieces_bitboards[3] | m_all_pieces_bitboards[4] | m_all_pieces_bitboards[5]
 #define white_rooks_arr m_all_pieces_bitboards[3] & m_color
@@ -491,19 +496,19 @@ public:
 	// Function that returns white pawn moves.
 	std::vector<int> get_white_pawn_moves(int move_from) {
 		std::vector<int> legit_moves {};
-		// Check if there is a piece in fron of the pawn.
-		if (!get_bit(all_pieces, (move_from - 8))) {
+		// Check if there is a piece in front of the pawn.
+		if (!get_bit(all_pieces, (one_square_up(move_from)))) {
 			// Add the move to the legit moves.
-			legit_moves.push_back(move_from - 8);
+			legit_moves.push_back(one_square_up(move_from));
 			// If the pawn is on the second rank, check if there is a piece 2 squares ahead of it.
-			if ((move_from > 47 && move_from < 56) && (!get_bit(all_pieces, (move_from - 16))))
+			if ((move_from > 47 && move_from < 56) && (!get_bit(all_pieces, two_squares_up(move_from))))
 				// Add the move to the legit moves.
-				legit_moves.push_back(move_from - 16);
+				legit_moves.push_back(two_squares_up(move_from));
 		// Check if there are opponents pieces in pawn's attack squares. If so, add these move to the legit moves.
-		if (get_bit(m_black_pieces, (move_from - 9)))
-			legit_moves.push_back(move_from - 9);
-		if (get_bit(m_black_pieces, (move_from - 7)))
-			legit_moves.push_back(move_from - 7);
+		if (get_bit(m_black_pieces, (one_square_left_up(move_from))))
+			legit_moves.push_back(one_square_left_up(move_from));
+		if (get_bit(m_black_pieces, (one_square_right_up(move_from))))
+			legit_moves.push_back(one_square_right_up(move_from));
 		}
 		return legit_moves;
 	}
