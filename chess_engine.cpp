@@ -491,10 +491,15 @@ public:
 	// Function that returns white pawn moves.
 	std::vector<int> get_white_pawn_moves(int move_from) {
 		std::vector<int> legit_moves {};
+		// Check if there is a piece in fron of the pawn.
 		if (!get_bit(all_pieces, (move_from - 8))) {
+			// Add the move to the legit moves.
 			legit_moves.push_back(move_from - 8);
+			// If the pawn is on the second rank, check if there is a piece 2 squares ahead of it.
 			if ((move_from > 47 && move_from < 56) && (!get_bit(all_pieces, (move_from - 16))))
+				// Add the move to the legit moves.
 				legit_moves.push_back(move_from - 16);
+		// Check if there are opponents pieces in pawn's attack squares. If so, add these move to the legit moves.
 		if (get_bit(m_black_pieces, (move_from - 9)))
 			legit_moves.push_back(move_from - 9);
 		if (get_bit(m_black_pieces, (move_from - 7)))
@@ -506,14 +511,19 @@ public:
 	// Function that returns black pawn moves.
 	std::vector<int> get_black_pawn_moves(int move_from) {
 		std::vector<int> legit_moves{};
+		// Check if there is a piece in fron of the pawn.
 		if (!get_bit(all_pieces, (move_from + 8))) {
+			// Add the move to the legit moves.
 			legit_moves.push_back(move_from + 8);
+			// If the pawn is on the seventh rank, check if there is a piece 2 squares ahead of it.
 			if ((move_from > 7 && move_from < 16) && (!get_bit(all_pieces, (move_from + 16))))
+				// Add the move to the legit moves.
 				legit_moves.push_back(move_from + 16);
-			if (get_bit(m_white_pieces, (move_from + 9)))
-				legit_moves.push_back(move_from + 9);
-			if (get_bit(m_white_pieces, (move_from + 7)))
-				legit_moves.push_back(move_from + 7);
+		// Check if there are opponents pieces in pawn's attack squares. If so, add these move to the legit moves.
+		if (get_bit(m_white_pieces, (move_from + 9)))
+			legit_moves.push_back(move_from + 9);
+		if (get_bit(m_white_pieces, (move_from + 7)))
+			legit_moves.push_back(move_from + 7);
 		}
 		return legit_moves;
 	}
@@ -521,6 +531,7 @@ public:
 	// Function that returns all legit moves.
 	std::vector<int> get_legit_moves(size_t bitboard_number_from, int move_from) {
 		std::vector<int> legit_moves{};
+		// Get legit moves for white or black depending on whose move it is.
 		if (bitboard_number_from == 0 && m_active_color == 1) {
 			legit_moves = get_white_pawn_moves(move_from);
 		}
@@ -535,6 +546,7 @@ public:
 		std::size_t bitboard_number_from = get_bitboard(move_from);
 		std::cout << "Moving from bitboard number: " << bitboard_number_from << '\n';
 		std::vector<int> legit_moves = get_legit_moves(bitboard_number_from, move_from);
+		// Printing out the array of the legit moves.
 		std::cout << "Legit moves: ";
 		for (size_t i = legit_moves.size(); i--;) {
 			std::string orphography = (i == 0) ? ";\n" : ", ";
