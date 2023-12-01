@@ -31,6 +31,16 @@ const std::string EN_PASSANT_TARGET_START_POS{ "-" };
 constexpr int HALFMOVE_CLOCK_START_POS{ 0 };
 constexpr int FULLMOVE_NUMBER_START_POS{ 0 };
 
+// Squares on the bitboard relative to current square.
+constexpr int ONE_SQUARE_UP{ -8 };
+constexpr int ONE_SQUARE_DOWN{ 8 };
+constexpr int TWO_SQUARES_UP{ -16 };
+constexpr int TWO_SQUARES_DOWN{ 16 };
+constexpr int ONE_SQUARE_LEFT_UP{ -9 };
+constexpr int ONE_SQUARE_RIGHT_UP{ -7 };
+constexpr int ONE_SQUARE_LEFT_DOWN{ 7 };
+constexpr int ONE_SQUARE_RIGHT_DOWN{ 9 };
+
 // Length of the part of the move string containing the coordinates of one square.
 constexpr std::size_t LENGTH_ONE_SQUARE_COORDS{ 2 };
 
@@ -44,11 +54,6 @@ constexpr bool PLAYER_COLOR_DEFAULT {};
 #define set_bit(b, i) ((b) |= (1ULL << i))
 #define get_bit(b, i) ((b) & (1ULL << i))
 #define clear_bit(b, i) ((b) &= ~(1ULL << i))
-
-#define one_square_up(i) (i - 8)
-#define two_squares_up(i) (i - 16)
-#define one_square_left_up(i) (i - 9)
-#define one_square_right_up(i) (i - 7)
 
 #define all_pieces m_white_pieces | m_black_pieces
 #define all_bitboards m_all_pieces_bitboards[0] | m_all_pieces_bitboards[1] | m_all_pieces_bitboards[2] | m_all_pieces_bitboards[3] | m_all_pieces_bitboards[4] | m_all_pieces_bitboards[5]
@@ -497,18 +502,18 @@ public:
 	std::vector<int> get_white_pawn_moves(int move_from) {
 		std::vector<int> legit_moves {};
 		// Check if there is a piece in front of the pawn.
-		if (!get_bit(all_pieces, (one_square_up(move_from)))) {
+		if (!get_bit(all_pieces, (move_from + ONE_SQUARE_UP))) {
 			// Add the move to the legit moves.
-			legit_moves.push_back(one_square_up(move_from));
+			legit_moves.push_back(move_from + ONE_SQUARE_UP);
 			// If the pawn is on the second rank, check if there is a piece 2 squares ahead of it.
-			if ((move_from > 47 && move_from < 56) && (!get_bit(all_pieces, two_squares_up(move_from))))
+			if ((move_from > 47 && move_from < 56) && (!get_bit(all_pieces, (move_from + TWO_SQUARES_UP))))
 				// Add the move to the legit moves.
-				legit_moves.push_back(two_squares_up(move_from));
+				legit_moves.push_back(move_from + TWO_SQUARES_UP);
 		// Check if there are opponents pieces in pawn's attack squares. If so, add these move to the legit moves.
-		if (get_bit(m_black_pieces, (one_square_left_up(move_from))))
-			legit_moves.push_back(one_square_left_up(move_from));
-		if (get_bit(m_black_pieces, (one_square_right_up(move_from))))
-			legit_moves.push_back(one_square_right_up(move_from));
+		if (get_bit(m_black_pieces, (move_from + ONE_SQUARE_LEFT_UP)))
+			legit_moves.push_back(move_from + ONE_SQUARE_LEFT_UP);
+		if (get_bit(m_black_pieces, (move_from + ONE_SQUARE_RIGHT_UP)))
+			legit_moves.push_back(move_from + ONE_SQUARE_RIGHT_UP);
 		}
 		return legit_moves;
 	}
@@ -517,18 +522,18 @@ public:
 	std::vector<int> get_black_pawn_moves(int move_from) {
 		std::vector<int> legit_moves{};
 		// Check if there is a piece in fron of the pawn.
-		if (!get_bit(all_pieces, (move_from + 8))) {
+		if (!get_bit(all_pieces, (move_from + ONE_SQUARE_DOWN))) {
 			// Add the move to the legit moves.
-			legit_moves.push_back(move_from + 8);
+			legit_moves.push_back(move_from + ONE_SQUARE_DOWN);
 			// If the pawn is on the seventh rank, check if there is a piece 2 squares ahead of it.
-			if ((move_from > 7 && move_from < 16) && (!get_bit(all_pieces, (move_from + 16))))
+			if ((move_from > 7 && move_from < 16) && (!get_bit(all_pieces, (move_from + TWO_SQUARES_DOWN))))
 				// Add the move to the legit moves.
-				legit_moves.push_back(move_from + 16);
+				legit_moves.push_back(move_from + TWO_SQUARES_DOWN);
 		// Check if there are opponents pieces in pawn's attack squares. If so, add these move to the legit moves.
-		if (get_bit(m_white_pieces, (move_from + 9)))
-			legit_moves.push_back(move_from + 9);
-		if (get_bit(m_white_pieces, (move_from + 7)))
-			legit_moves.push_back(move_from + 7);
+		if (get_bit(m_white_pieces, (move_from + ONE_SQUARE_LEFT_DOWN)))
+			legit_moves.push_back(move_from + ONE_SQUARE_LEFT_DOWN);
+		if (get_bit(m_white_pieces, (move_from + ONE_SQUARE_RIGHT_DOWN)))
+			legit_moves.push_back(move_from + ONE_SQUARE_RIGHT_DOWN);
 		}
 		return legit_moves;
 	}
