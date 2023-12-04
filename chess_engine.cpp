@@ -607,21 +607,24 @@ public:
 		return 0;
 	}
 
+	// This function generates random legit move for computer.
 	std::tuple <int, int> generate_random_move_comp () {
-		std::vector<int> comp_square_numbers = get_comp_square_numbers();
-		std::cout << "All white/black pieces: " << '\n';
-		for (int x : comp_square_numbers)
-			std::cout << x << ' ';
-		std::cout << '\n';
-		int random_move_from = get_random_square(comp_square_numbers);
-		// Choose "move to" from empty squares and opposition pieces randomly.
-		std::vector<int> pl_and_empty_square_numbers = get_pl_and_empty_square_numbers();
-		std::cout << "All player pieces and empty squares: " << '\n';
-		for (int x : pl_and_empty_square_numbers)
-			std::cout << x << ' ';
-		std::cout << '\n';
-		// Choose a random square from all the empty squares and squares with opponent's pieces on them.
-		int random_move_to = get_random_square(pl_and_empty_square_numbers);
+		std::vector<int> legit_moves{};
+		int random_move_from{};
+		// This "while" will prevent it from vector out of range error.
+		while (legit_moves.empty()) {
+			std::vector<int> comp_square_numbers = get_comp_square_numbers();
+			std::cout << "All white/black pieces: " << '\n';
+			for (int x : comp_square_numbers)
+				std::cout << x << ' ';
+			std::cout << '\n';
+			random_move_from = get_random_square(comp_square_numbers);
+			// Choose "move to" from empty squares and opposition pieces randomly.
+			std::size_t bitboard_number_from = get_bitboard(random_move_from);
+			legit_moves = get_legit_moves(bitboard_number_from, random_move_from);
+			// Choose a random square from all the empty squares and squares with opponent's pieces on them.
+		}
+		int random_move_to = get_random_square(legit_moves);
 		std::cout << "Comp move: " << random_move_from << ' ' << random_move_to << '\n';
 		return std::tuple <int, int>(random_move_from, random_move_to);
 	}
@@ -629,12 +632,14 @@ public:
 
 
 	// Function that gets positions of all computer pieces.
+	// !!!!!!!!!!!!!!!!!!!!! TEMPORARILY returns only pawns.
 	std::vector<int> get_comp_square_numbers() const {
 		std::vector<int> comp_square_numbers;
 		// If player is playing black pieces, get positions of all white pieces (computer's pieces). 
 		if (m_player_color == 0) {
 			for (int i = 0; i < 64; ++i) {
-				if (get_bit(m_white_pieces, i)) {
+				// The part after && will be removed.
+				if (get_bit(m_white_pieces, i) && get_bit(m_all_pieces_bitboards[0], i)) {
 					comp_square_numbers.push_back(i);
 				}
 			}
@@ -642,7 +647,8 @@ public:
 		// If player is playing white pieces, get positions of all black pieces for the comp. 
 		else {
 			for (int i = 0; i < 64; ++i) {
-				if (get_bit(m_black_pieces, i)) {
+				// The part after && will be removed.
+				if (get_bit(m_black_pieces, i) && get_bit(m_all_pieces_bitboards[0], i)) {
 					comp_square_numbers.push_back(i);
 				}
 			}
