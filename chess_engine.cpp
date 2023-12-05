@@ -501,6 +501,8 @@ public:
 	// Function that returns white pawn moves.
 	std::vector<int> get_white_pawn_moves(int move_from) {
 		std::vector<int> legit_moves {};
+		// If it's a last rank, return empty vector.
+		if (move_from < 8) return legit_moves;
 		// Check if there is a piece in front of the pawn.
 		if (!get_bit(all_pieces, (move_from + ONE_SQUARE_UP))) {
 			// Add the move to the legit moves.
@@ -521,6 +523,8 @@ public:
 	// Function that returns black pawn moves.
 	std::vector<int> get_black_pawn_moves(int move_from) {
 		std::vector<int> legit_moves{};
+		// If it's a last rank, return an empty vector.
+		if (move_from > 55) return legit_moves;
 		// Check if there is a piece in fron of the pawn.
 		if (!get_bit(all_pieces, (move_from + ONE_SQUARE_DOWN))) {
 			// Add the move to the legit moves.
