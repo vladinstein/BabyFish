@@ -20,9 +20,9 @@ const std::array<U64, 7> ALL_PIECES_EMPTY{ 0x00000000000000ULL, 0x00000000000000
 // Starting bitboards.
 const std::array<U64, 7> ALL_PIECES_START_POS{ 0xFF00000000FF00ULL, 0x4200000000000042ULL, 0x2400000000000024ULL,
 0x8100000000000081ULL, 0x800000000000008ULL, 0x1000000000000010ULL, 0xFFFFFFFFFFFFFFFFULL };
-constexpr U64 COLOR_START_POS{ 0xFFFF000000000000ULL };
-constexpr U64 WHITE_PIECES_START_POS{ 0xFFFF000000000000ULL };
-constexpr U64 BLACK_PIECES_START_POS{ 0xFFFFULL };
+constexpr U64 COLOR_START_POS{ 0xFFFFULL };
+constexpr U64 WHITE_PIECES_START_POS{ 0xFFFFULL };
+constexpr U64 BLACK_PIECES_START_POS{ 0xFFFF000000000000ULL };
 
 // Other starting data.
 constexpr bool ACTIVE_COLOR_START_POS{ true };								// true - white, false - black.
@@ -32,21 +32,21 @@ constexpr int HALFMOVE_CLOCK_START_POS{ 0 };
 constexpr int FULLMOVE_NUMBER_START_POS{ 0 };
 
 // Squares on the bitboard relative to current square.
-constexpr int ONE_SQUARE_UP{ -8 };
-constexpr int ONE_SQUARE_DOWN{ 8 };
-constexpr int TWO_SQUARES_UP{ -16 };
-constexpr int TWO_SQUARES_DOWN{ 16 };
-constexpr int ONE_SQUARE_LEFT_UP{ -9 };
-constexpr int ONE_SQUARE_RIGHT_UP{ -7 };
-constexpr int ONE_SQUARE_LEFT_DOWN{ 7 };
-constexpr int ONE_SQUARE_RIGHT_DOWN{ 9 };
+constexpr int ONE_SQUARE_UP{ 8 };
+constexpr int ONE_SQUARE_DOWN{ -8 };
+constexpr int TWO_SQUARES_UP{ 16 };
+constexpr int TWO_SQUARES_DOWN{ -16 };
+constexpr int ONE_SQUARE_LEFT_UP{ 7 };
+constexpr int ONE_SQUARE_RIGHT_UP{ 9 };
+constexpr int ONE_SQUARE_LEFT_DOWN{ -9 };
+constexpr int ONE_SQUARE_RIGHT_DOWN{ -7 };
 
 // Length of the part of the move string containing the coordinates of one square.
 constexpr std::size_t LENGTH_ONE_SQUARE_COORDS{ 2 };
 
 constexpr int LENGTH_IN_SQUARES_ONE_RANK{ 8 };
 constexpr int ASCII_LOWER_CASE_A_INT{ 97 };
-constexpr int ASCII_ZERO_INT{ 48 };
+constexpr int ASCII_ONE_INT{ 49 };
 
 // Default for the player's color is zero-initialized.
 constexpr bool PLAYER_COLOR_DEFAULT {};
@@ -62,25 +62,26 @@ constexpr bool PLAYER_COLOR_DEFAULT {};
 
 
 enum {
-	a8, b8, c8, d8, e8, f8, g8, h8,
-	a7, b7, c7, d7, e7, f7, g7, h7,
-	a6, b6, c6, d6, e6, f6, g6, h6,
-	a5, b5, c5, d5, e5, f5, g5, h5,
-	a4, b4, c4, d4, e4, f4, g4, h4,
-	a3, b3, c3, d3, e3, f3, g3, h3,
+	a1, b1, c1, d1, e1, f1, g1, h1,
 	a2, b2, c2, d2, e2, f2, g2, h2,
-	a1, b1, c1, d1, e1, f1, g1, h1
+	a3, b3, c3, d3, e3, f3, g3, h3,
+	a4, b4, c4, d4, e4, f4, g4, h4,
+	a5, b5, c5, d5, e5, f5, g5, h5,
+	a6, b6, c6, d6, e6, f6, g6, h6,
+	a7, b7, c7, d7, e7, f7, g7, h7,
+	a8, b8, c8, d8, e8, f8, g8, h8
 };
 
 /*
-"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
-"a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
-"a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
-"a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
-"a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
-"a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
-"a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+
 "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
+"a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+"a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
+"a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
+"a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
+"a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
+"a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
+"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
 */
 
 // This is a struct containing the game data.
@@ -252,20 +253,22 @@ public:
 		for (std::size_t i = 0; i < board.length(); i++) {
 			// If the character is not 0, we need to set the bit in the bitboard.
 			if (board[i] != '0') {
+				// Convert to little endian.
+				std::size_t little_endian_i = board.length() - 1 - i;
 				// Create a string from a character to be able to use a map.
 				std::string s(1, board[i]);
 				// Create a pointer to a particular bitboard that we need, according to the letter. 
 				U64* pBitboard = fen_bit_arr[s];
 				// Set that bit on that bitboard.
-				set_bit(*pBitboard, i);
+				set_bit(*pBitboard, little_endian_i);
 				// If the letter is uppercase, we also set a bit in the m_white_pieces bitboard.
 				if (std::isupper(board[i])) {
-					set_bit(m_white_pieces, i);
-					set_bit(m_color, i);
+					set_bit(m_white_pieces, little_endian_i);
+					set_bit(m_color, little_endian_i);
 				}
 				// If the letter is lowercase, we set a bit in the m_black_pieces bitboard.
 				else {
-					set_bit(m_black_pieces, i);
+					set_bit(m_black_pieces, little_endian_i);
 				}
 			}
 		}
@@ -274,22 +277,24 @@ public:
 	// This function writes white pieces positions into FEN string.
 	void append_m_white_pieces_to_fen(std::string& fen, std::size_t bit) {
 		// Write the appropriate letter (white pieces) into the future FEN string.
-		if (get_bit(m_all_pieces_bitboards[0], bit))			fen[bit] = 'P';
-		else if (get_bit(m_all_pieces_bitboards[1], bit))	    fen[bit] = 'N';
-		else if (get_bit(m_all_pieces_bitboards[2], bit))  	    fen[bit] = 'B';
-		else if (get_bit(m_all_pieces_bitboards[3], bit))		fen[bit] = 'R';
-		else if (get_bit(m_all_pieces_bitboards[4], bit))	    fen[bit] = 'Q';
+		std::size_t little_endian_bit = fen.length() - 1 - bit;
+		if (get_bit(m_all_pieces_bitboards[0], little_endian_bit))			fen[bit] = 'P';
+		else if (get_bit(m_all_pieces_bitboards[1], little_endian_bit))	    fen[bit] = 'N';
+		else if (get_bit(m_all_pieces_bitboards[2], little_endian_bit))  	    fen[bit] = 'B';
+		else if (get_bit(m_all_pieces_bitboards[3], little_endian_bit))		fen[bit] = 'R';
+		else if (get_bit(m_all_pieces_bitboards[4], little_endian_bit))	    fen[bit] = 'Q';
 		else													fen[bit] = 'K';
 	}
 
 	// This function writes black pieces positions into FEN string.
 	void append_m_black_pieces_to_fen(std::string& fen, std::size_t bit) {
 		// Write the appropriate letter (black pieces) into the future FEN string.
-		if (get_bit(m_all_pieces_bitboards[0], bit))          fen[bit] = 'p';
-		else if (get_bit(m_all_pieces_bitboards[1], bit))     fen[bit] = 'n';
-		else if (get_bit(m_all_pieces_bitboards[2], bit))     fen[bit] = 'b';
-		else if (get_bit(m_all_pieces_bitboards[3], bit))     fen[bit] = 'r';
-		else if (get_bit(m_all_pieces_bitboards[4], bit))     fen[bit] = 'q';
+		std::size_t little_endian_bit = fen.length() - 1 - bit;
+		if (get_bit(m_all_pieces_bitboards[0], little_endian_bit))          fen[bit] = 'p';
+		else if (get_bit(m_all_pieces_bitboards[1], little_endian_bit))     fen[bit] = 'n';
+		else if (get_bit(m_all_pieces_bitboards[2], little_endian_bit))     fen[bit] = 'b';
+		else if (get_bit(m_all_pieces_bitboards[3], little_endian_bit))     fen[bit] = 'r';
+		else if (get_bit(m_all_pieces_bitboards[4], little_endian_bit))     fen[bit] = 'q';
 		else												  fen[bit] = 'k';
 	}
 
@@ -385,10 +390,10 @@ public:
 	// Functions for adding current board position to the FEN are going to use the same pattend (for every type of pieces).
 	void print_bitboard(U64 bitboard) const {
 		std::cout << "\n";
-		for (int rank = 0; rank < 8; rank++) {
+		for (int rank = 7; rank >= 0 ; rank--) {
 			for (int file = 0; file < 8; file++) {
 				if (!file)
-					std::cout << 8 - rank << ' ';
+					std::cout << rank + 1 << ' ';
 				int square = rank * 8 + file;
 				// Print bit state (either 1 or 0).
 				(get_bit(bitboard, square)) ? std::cout << 1 : std::cout << 0;
@@ -442,7 +447,7 @@ public:
 		// To get int from char, containing file letter, we subtract integer ascii value of lowercase 'a' from it.
 		int file = square[0] - ASCII_LOWER_CASE_A_INT;
 		// To get int from char, containing rank number, we subtract integer ascii value of zero.
-		int rank = LENGTH_IN_SQUARES_ONE_RANK - (square[1] - ASCII_ZERO_INT);
+		int rank = square[1] - ASCII_ONE_INT;
 		// Create bit number variable. 
 		int bit_number{};
 		// To get the number of the bit, multiply rank number by 8 (cause 8 squares in the rank) and add file int value.
@@ -502,13 +507,13 @@ public:
 	std::vector<int> get_white_pawn_moves(int move_from) {
 		std::vector<int> legit_moves {};
 		// If it's a last rank, return empty vector.
-		if (move_from < 8) return legit_moves;
+		if (move_from > 55) return legit_moves;
 		// Check if there is a piece in front of the pawn.
 		if (!get_bit(all_pieces, (move_from + ONE_SQUARE_UP))) {
 			// Add the move to the legit moves.
 			legit_moves.push_back(move_from + ONE_SQUARE_UP);
 			// If the pawn is on the second rank, check if there is a piece 2 squares ahead of it.
-			if ((move_from > 47 && move_from < 56) && (!get_bit(all_pieces, (move_from + TWO_SQUARES_UP))))
+			if ((move_from > 7 && move_from < 16) && (!get_bit(all_pieces, (move_from + TWO_SQUARES_UP))))
 				// Add the move to the legit moves.
 				legit_moves.push_back(move_from + TWO_SQUARES_UP);
 		// Check if there are opponents pieces in pawn's attack squares. If so, add these move to the legit moves.
@@ -524,13 +529,13 @@ public:
 	std::vector<int> get_black_pawn_moves(int move_from) {
 		std::vector<int> legit_moves{};
 		// If it's a last rank, return an empty vector.
-		if (move_from > 55) return legit_moves;
+		if (move_from < 8) return legit_moves;
 		// Check if there is a piece in fron of the pawn.
 		if (!get_bit(all_pieces, (move_from + ONE_SQUARE_DOWN))) {
 			// Add the move to the legit moves.
 			legit_moves.push_back(move_from + ONE_SQUARE_DOWN);
 			// If the pawn is on the seventh rank, check if there is a piece 2 squares ahead of it.
-			if ((move_from > 7 && move_from < 16) && (!get_bit(all_pieces, (move_from + TWO_SQUARES_DOWN))))
+			if ((move_from > 47 && move_from < 56) && (!get_bit(all_pieces, (move_from + TWO_SQUARES_DOWN))))
 				// Add the move to the legit moves.
 				legit_moves.push_back(move_from + TWO_SQUARES_DOWN);
 		// Check if there are opponents pieces in pawn's attack squares. If so, add these move to the legit moves.
