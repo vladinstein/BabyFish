@@ -14,6 +14,10 @@ typedef uint64_t U64;
 
 // Empty bitboard.
 constexpr U64 EMPTY_BITBOARD{ 0x00000000000000ULL };
+constexpr U64 A_FILE{ 0x0101010101010101ULL };
+constexpr U64 H_FILE{ 0x8080808080808080ULL };
+constexpr U64 FIRST_TWO_RANKS{ 0xFFFFULL };
+constexpr U64 LAST_TWO_RANKS{ 0xFFFF000000000000ULL };
 const std::array<U64, 7> ALL_PIECES_EMPTY{ 0x00000000000000ULL, 0x00000000000000ULL, 0x00000000000000ULL,
 0x00000000000000ULL, 0x00000000000000ULL, 0x00000000000000ULL, 0xFFFFFFFFFFFFFFFFULL };
 
@@ -40,6 +44,10 @@ constexpr int ONE_SQUARE_LEFT_UP{ 7 };
 constexpr int ONE_SQUARE_RIGHT_UP{ 9 };
 constexpr int ONE_SQUARE_LEFT_DOWN{ -9 };
 constexpr int ONE_SQUARE_RIGHT_DOWN{ -7 };
+constexpr int TWO_SQUARES_UP_ONE_LEFT{ 15 };
+constexpr int TWO_SQUARES_UP_ONE_RIGHT{ 17 };
+constexpr int TWO_SQUARES_DOWN_ONE_LEFT{ -17 };
+constexpr int TWO_SQUARES_DOWN_ONE_RIGHT{ -15 };
 
 // Length of the part of the move string containing the coordinates of one square.
 constexpr std::size_t LENGTH_ONE_SQUARE_COORDS{ 2 };
@@ -149,7 +157,6 @@ public:
 		}
 		return board;
 	}
-
 
 	// This function returns castling values from the current FEN-string.
 	static std::array<bool, 4> get_castling_values(std::string fen_castling, std::array<bool, 4> castling_values) {
@@ -547,6 +554,16 @@ public:
 		return legit_moves;
 	}
 
+	//Function that returns white knight's moves.
+	std::vector<int> get_white_knights_moves(int move_from) {
+		std::vector<int> legit_moves{};
+		if ((!get_bit(A_FILE, move_from)) && (!get_bit(LAST_TWO_RANKS, move_from)) && (!get_bit(all_pieces, (move_from + TWO_SQUARES_UP_ONE_LEFT))))
+			legit_moves.push_back(move_from + TWO_SQUARES_UP_ONE_LEFT);
+		if ((!get_bit(H_FILE, move_from)) && (!get_bit(LAST_TWO_RANKS, move_from)) && (!get_bit(all_pieces, (move_from + TWO_SQUARES_UP_ONE_RIGHT))))
+			legit_moves.push_back(move_from + TWO_SQUARES_UP_ONE_RIGHT);
+		return legit_moves;
+	}
+
 	// Function that returns all legit moves.
 	std::vector<int> get_legit_moves(size_t bitboard_number_from, int move_from) {
 		std::vector<int> legit_moves{};
@@ -556,6 +573,9 @@ public:
 		}
 		else if (bitboard_number_from == 0 && m_active_color == 0) {
 			legit_moves = get_black_pawn_moves(move_from);
+		}
+		else if (bitboard_number_from == 1 && m_active_color == 1) {
+			legit_moves = get_white_knights_moves(move_from);
 		}
 		return legit_moves;
 	}
