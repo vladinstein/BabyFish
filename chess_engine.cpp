@@ -15,9 +15,12 @@ typedef uint64_t U64;
 // Empty bitboard.
 constexpr U64 EMPTY_BITBOARD{ 0x00000000000000ULL };
 constexpr U64 A_FILE{ 0x0101010101010101ULL };
+constexpr U64 A_B_FILES{ 0x0303030303030303ULL };
 constexpr U64 H_FILE{ 0x8080808080808080ULL };
-constexpr U64 FIRST_TWO_RANKS{ 0xFFFFULL };
-constexpr U64 LAST_TWO_RANKS{ 0xFFFF000000000000ULL };
+constexpr U64 G_H_FILES{ 0xC0C0C0C0C0C0C0C0ULL };
+constexpr U64 RANK_8{ 0xFF00000000000000ULL };
+constexpr U64 RANKS_1_2{ 0xFFFFULL };
+constexpr U64 RANKS_7_8{ 0xFFFF000000000000ULL };
 const std::array<U64, 7> ALL_PIECES_EMPTY{ 0x00000000000000ULL, 0x00000000000000ULL, 0x00000000000000ULL,
 0x00000000000000ULL, 0x00000000000000ULL, 0x00000000000000ULL, 0xFFFFFFFFFFFFFFFFULL };
 
@@ -44,6 +47,8 @@ constexpr int ONE_SQUARE_LEFT_UP{ 7 };
 constexpr int ONE_SQUARE_RIGHT_UP{ 9 };
 constexpr int ONE_SQUARE_LEFT_DOWN{ -9 };
 constexpr int ONE_SQUARE_RIGHT_DOWN{ -7 };
+constexpr int ONE_SQUARE_UP_TWO_LEFT{ 6 };
+constexpr int ONE_SQUARE_UP_TWO_RIGHT{ 10 };
 constexpr int TWO_SQUARES_UP_ONE_LEFT{ 15 };
 constexpr int TWO_SQUARES_UP_ONE_RIGHT{ 17 };
 constexpr int TWO_SQUARES_DOWN_ONE_LEFT{ -17 };
@@ -557,10 +562,14 @@ public:
 	//Function that returns white knight's moves.
 	std::vector<int> get_white_knights_moves(int move_from) {
 		std::vector<int> legit_moves{};
-		if ((!get_bit(A_FILE, move_from)) && (!get_bit(LAST_TWO_RANKS, move_from)) && (!get_bit(all_pieces, (move_from + TWO_SQUARES_UP_ONE_LEFT))))
+		if ((!get_bit(A_FILE, move_from)) && (!get_bit(RANKS_7_8, move_from)) && (!get_bit(all_pieces, (move_from + TWO_SQUARES_UP_ONE_LEFT))))
 			legit_moves.push_back(move_from + TWO_SQUARES_UP_ONE_LEFT);
-		if ((!get_bit(H_FILE, move_from)) && (!get_bit(LAST_TWO_RANKS, move_from)) && (!get_bit(all_pieces, (move_from + TWO_SQUARES_UP_ONE_RIGHT))))
+		if ((!get_bit(H_FILE, move_from)) && (!get_bit(RANKS_7_8, move_from)) && (!get_bit(all_pieces, (move_from + TWO_SQUARES_UP_ONE_RIGHT))))
 			legit_moves.push_back(move_from + TWO_SQUARES_UP_ONE_RIGHT);
+		if ((!get_bit(A_B_FILES, move_from)) && (!get_bit(RANK_8, move_from)) && (!get_bit(all_pieces, (move_from + ONE_SQUARE_UP_TWO_LEFT))))
+			legit_moves.push_back(move_from + ONE_SQUARE_UP_TWO_LEFT);
+		if ((!get_bit(G_H_FILES, move_from)) && (!get_bit(RANK_8, move_from)) && (!get_bit(all_pieces, (move_from + ONE_SQUARE_UP_TWO_RIGHT))))
+			legit_moves.push_back(move_from + ONE_SQUARE_UP_TWO_RIGHT);
 		return legit_moves;
 	}
 
