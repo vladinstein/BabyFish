@@ -45,10 +45,10 @@ constexpr int ONE_SQUARE_UP{ 8 };
 constexpr int ONE_SQUARE_DOWN{ -8 };
 constexpr int TWO_SQUARES_UP{ 16 };
 constexpr int TWO_SQUARES_DOWN{ -16 };
-constexpr int ONE_SQUARE_LEFT_UP{ 7 };
-constexpr int ONE_SQUARE_RIGHT_UP{ 9 };
-constexpr int ONE_SQUARE_LEFT_DOWN{ -9 };
-constexpr int ONE_SQUARE_RIGHT_DOWN{ -7 };
+constexpr int ONE_SQUARE_LEFT_ONE_UP{ 7 };
+constexpr int ONE_SQUARE_RIGHT_ONE_UP{ 9 };
+constexpr int ONE_SQUARE_LEFT_ONE_DOWN{ -9 };
+constexpr int ONE_SQUARE_RIGHT_ONE_DOWN{ -7 };
 constexpr int ONE_SQUARE_UP_TWO_LEFT{ 6 };
 constexpr int ONE_SQUARE_UP_TWO_RIGHT{ 10 };
 constexpr int ONE_SQUARE_DOWN_TWO_LEFT{ -10 };
@@ -533,10 +533,10 @@ public:
 				// Add the move to the legit moves.
 				legit_moves.push_back(move_from + TWO_SQUARES_UP);
 		// Check if there are opponents pieces in pawn's attack squares. If so, add these move to the legit moves.
-		if (get_bit(m_black_pieces, (move_from + ONE_SQUARE_LEFT_UP)))
-			legit_moves.push_back(move_from + ONE_SQUARE_LEFT_UP);
-		if (get_bit(m_black_pieces, (move_from + ONE_SQUARE_RIGHT_UP)))
-			legit_moves.push_back(move_from + ONE_SQUARE_RIGHT_UP);
+		if (get_bit(m_black_pieces, (move_from + ONE_SQUARE_LEFT_ONE_UP)))
+			legit_moves.push_back(move_from + ONE_SQUARE_LEFT_ONE_UP);
+		if (get_bit(m_black_pieces, (move_from + ONE_SQUARE_RIGHT_ONE_UP)))
+			legit_moves.push_back(move_from + ONE_SQUARE_RIGHT_ONE_UP);
 		}
 		return legit_moves;
 	}
@@ -555,10 +555,10 @@ public:
 				// Add the move to the legit moves.
 				legit_moves.push_back(move_from + TWO_SQUARES_DOWN);
 		// Check if there are opponents pieces in pawn's attack squares. If so, add these move to the legit moves.
-		if (get_bit(m_white_pieces, (move_from + ONE_SQUARE_LEFT_DOWN)))
-			legit_moves.push_back(move_from + ONE_SQUARE_LEFT_DOWN);
-		if (get_bit(m_white_pieces, (move_from + ONE_SQUARE_RIGHT_DOWN)))
-			legit_moves.push_back(move_from + ONE_SQUARE_RIGHT_DOWN);
+		if (get_bit(m_white_pieces, (move_from + ONE_SQUARE_LEFT_ONE_DOWN)))
+			legit_moves.push_back(move_from + ONE_SQUARE_LEFT_ONE_DOWN);
+		if (get_bit(m_white_pieces, (move_from + ONE_SQUARE_RIGHT_ONE_DOWN)))
+			legit_moves.push_back(move_from + ONE_SQUARE_RIGHT_ONE_DOWN);
 		}
 		return legit_moves;
 	}
