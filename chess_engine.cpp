@@ -564,26 +564,27 @@ public:
 	}
 
 	//Function that returns white knight's moves.
-	std::vector<int> get_white_knights_moves(int move_from) {
+	std::vector<int> get_knights_moves(int move_from) {
 		std::vector<int> legit_moves{};
 		// For each move, we check if origin square is not in 1-2 border ranks/files (depending on each move)
 		// to make sure there's enough space for the move. Then we check that there's no piece of the same color
-		//  in the destination square. If all the requirements are met, we add the move to the moves vector.
-		if ((!get_bit(A_FILE, move_from)) && (!get_bit(RANKS_7_8, move_from)) && (!get_bit(m_white_pieces, (move_from + TWO_SQUARES_UP_ONE_LEFT))))
+		//  in the destination square (using ternary operator). If all the requirements are met, we add the move 
+		// to the moves vector.
+		if ((!get_bit(A_FILE, move_from)) && (!get_bit(RANKS_7_8, move_from)) && (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + TWO_SQUARES_UP_ONE_LEFT))))
 			legit_moves.push_back(move_from + TWO_SQUARES_UP_ONE_LEFT);
-		if ((!get_bit(H_FILE, move_from)) && (!get_bit(RANKS_7_8, move_from)) && (!get_bit(m_white_pieces, (move_from + TWO_SQUARES_UP_ONE_RIGHT))))
+		if ((!get_bit(H_FILE, move_from)) && (!get_bit(RANKS_7_8, move_from)) && (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + TWO_SQUARES_UP_ONE_RIGHT))))
 			legit_moves.push_back(move_from + TWO_SQUARES_UP_ONE_RIGHT);
-		if ((!get_bit(A_B_FILES, move_from)) && (!get_bit(RANK_8, move_from)) && (!get_bit(m_white_pieces, (move_from + ONE_SQUARE_UP_TWO_LEFT))))
+		if ((!get_bit(A_B_FILES, move_from)) && (!get_bit(RANK_8, move_from)) && (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + ONE_SQUARE_UP_TWO_LEFT))))
 			legit_moves.push_back(move_from + ONE_SQUARE_UP_TWO_LEFT);
-		if ((!get_bit(G_H_FILES, move_from)) && (!get_bit(RANK_8, move_from)) && (!get_bit(m_white_pieces, (move_from + ONE_SQUARE_UP_TWO_RIGHT))))
+		if ((!get_bit(G_H_FILES, move_from)) && (!get_bit(RANK_8, move_from)) && (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + ONE_SQUARE_UP_TWO_RIGHT))))
 			legit_moves.push_back(move_from + ONE_SQUARE_UP_TWO_RIGHT);
-		if ((!get_bit(A_FILE, move_from)) && (!get_bit(RANKS_1_2, move_from)) && (!get_bit(m_white_pieces, (move_from + TWO_SQUARES_DOWN_ONE_LEFT))))
+		if ((!get_bit(A_FILE, move_from)) && (!get_bit(RANKS_1_2, move_from)) && (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + TWO_SQUARES_DOWN_ONE_LEFT))))
 			legit_moves.push_back(move_from + TWO_SQUARES_DOWN_ONE_LEFT);
-		if ((!get_bit(H_FILE, move_from)) && (!get_bit(RANKS_1_2, move_from)) && (!get_bit(m_white_pieces, (move_from + TWO_SQUARES_DOWN_ONE_RIGHT))))
+		if ((!get_bit(H_FILE, move_from)) && (!get_bit(RANKS_1_2, move_from)) && (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + TWO_SQUARES_DOWN_ONE_RIGHT))))
 			legit_moves.push_back(move_from + TWO_SQUARES_DOWN_ONE_RIGHT);
-		if ((!get_bit(A_B_FILES, move_from)) && (!get_bit(RANK_1, move_from)) && (!get_bit(m_white_pieces, (move_from + ONE_SQUARE_DOWN_TWO_LEFT))))
+		if ((!get_bit(A_B_FILES, move_from)) && (!get_bit(RANK_1, move_from)) && (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + ONE_SQUARE_DOWN_TWO_LEFT))))
 			legit_moves.push_back(move_from + ONE_SQUARE_DOWN_TWO_LEFT);
-		if ((!get_bit(G_H_FILES, move_from)) && (!get_bit(RANK_1, move_from)) && (!get_bit(m_white_pieces, (move_from + ONE_SQUARE_DOWN_TWO_RIGHT))))
+		if ((!get_bit(G_H_FILES, move_from)) && (!get_bit(RANK_1, move_from)) && (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + ONE_SQUARE_DOWN_TWO_RIGHT))))
 			legit_moves.push_back(move_from + ONE_SQUARE_DOWN_TWO_RIGHT);
 		return legit_moves;
 	}
@@ -598,8 +599,8 @@ public:
 		else if (bitboard_number_from == 0 && m_active_color == 0) {
 			legit_moves = get_black_pawn_moves(move_from);
 		}
-		else if (bitboard_number_from == 1 && m_active_color == 1) {
-			legit_moves = get_white_knights_moves(move_from);
+		else if (bitboard_number_from == 1) {
+			legit_moves = get_knights_moves(move_from);
 		}
 		return legit_moves;
 	}
@@ -692,7 +693,7 @@ public:
 		if (m_player_color == 0) {
 			for (int i = 0; i < 64; ++i) {
 				// The part after && will be removed.
-				if (get_bit(m_white_pieces, i) && get_bit(m_all_pieces_bitboards[0], i)) {
+				if (get_bit(m_white_pieces, i) && (get_bit(m_all_pieces_bitboards[0], i) || get_bit(m_all_pieces_bitboards[1], i))) {
 					comp_square_numbers.push_back(i);
 				}
 			}
@@ -701,7 +702,7 @@ public:
 		else {
 			for (int i = 0; i < 64; ++i) {
 				// The part after && will be removed.
-				if (get_bit(m_black_pieces, i) && get_bit(m_all_pieces_bitboards[0], i)) {
+				if (get_bit(m_black_pieces, i) && (get_bit(m_all_pieces_bitboards[0], i) || get_bit(m_all_pieces_bitboards[1], i))) {
 					comp_square_numbers.push_back(i);
 				}
 			}
