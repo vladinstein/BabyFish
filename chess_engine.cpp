@@ -570,22 +570,38 @@ public:
 		// to make sure there's enough space for the move. Then we check that there's no piece of the same color
 		//  in the destination square (using ternary operator). If all the requirements are met, we add the move 
 		// to the moves vector.
-		if ((!get_bit(A_FILE, move_from)) && (!get_bit(RANKS_7_8, move_from)) && (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + TWO_SQUARES_UP_ONE_LEFT))))
+		if ((!get_bit(A_FILE, move_from)) && (!get_bit(RANKS_7_8, move_from))
+			&& (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + TWO_SQUARES_UP_ONE_LEFT))))
 			legit_moves.push_back(move_from + TWO_SQUARES_UP_ONE_LEFT);
-		if ((!get_bit(H_FILE, move_from)) && (!get_bit(RANKS_7_8, move_from)) && (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + TWO_SQUARES_UP_ONE_RIGHT))))
+
+		if ((!get_bit(H_FILE, move_from)) && (!get_bit(RANKS_7_8, move_from)) 
+			&& (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + TWO_SQUARES_UP_ONE_RIGHT))))
 			legit_moves.push_back(move_from + TWO_SQUARES_UP_ONE_RIGHT);
-		if ((!get_bit(A_B_FILES, move_from)) && (!get_bit(RANK_8, move_from)) && (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + ONE_SQUARE_UP_TWO_LEFT))))
+
+		if ((!get_bit(A_B_FILES, move_from)) && (!get_bit(RANK_8, move_from)) 
+			&& (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + ONE_SQUARE_UP_TWO_LEFT))))
 			legit_moves.push_back(move_from + ONE_SQUARE_UP_TWO_LEFT);
-		if ((!get_bit(G_H_FILES, move_from)) && (!get_bit(RANK_8, move_from)) && (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + ONE_SQUARE_UP_TWO_RIGHT))))
+
+		if ((!get_bit(G_H_FILES, move_from)) && (!get_bit(RANK_8, move_from)) 
+			&& (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + ONE_SQUARE_UP_TWO_RIGHT))))
 			legit_moves.push_back(move_from + ONE_SQUARE_UP_TWO_RIGHT);
-		if ((!get_bit(A_FILE, move_from)) && (!get_bit(RANKS_1_2, move_from)) && (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + TWO_SQUARES_DOWN_ONE_LEFT))))
+
+		if ((!get_bit(A_FILE, move_from)) && (!get_bit(RANKS_1_2, move_from)) 
+			&& (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + TWO_SQUARES_DOWN_ONE_LEFT))))
 			legit_moves.push_back(move_from + TWO_SQUARES_DOWN_ONE_LEFT);
-		if ((!get_bit(H_FILE, move_from)) && (!get_bit(RANKS_1_2, move_from)) && (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + TWO_SQUARES_DOWN_ONE_RIGHT))))
+
+		if ((!get_bit(H_FILE, move_from)) && (!get_bit(RANKS_1_2, move_from)) 
+			&& (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + TWO_SQUARES_DOWN_ONE_RIGHT))))
 			legit_moves.push_back(move_from + TWO_SQUARES_DOWN_ONE_RIGHT);
-		if ((!get_bit(A_B_FILES, move_from)) && (!get_bit(RANK_1, move_from)) && (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + ONE_SQUARE_DOWN_TWO_LEFT))))
+
+		if ((!get_bit(A_B_FILES, move_from)) && (!get_bit(RANK_1, move_from)) 
+			&& (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + ONE_SQUARE_DOWN_TWO_LEFT))))
 			legit_moves.push_back(move_from + ONE_SQUARE_DOWN_TWO_LEFT);
-		if ((!get_bit(G_H_FILES, move_from)) && (!get_bit(RANK_1, move_from)) && (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + ONE_SQUARE_DOWN_TWO_RIGHT))))
+
+		if ((!get_bit(G_H_FILES, move_from)) && (!get_bit(RANK_1, move_from)) 
+			&& (!get_bit(m_active_color == 1 ? m_white_pieces : m_black_pieces, (move_from + ONE_SQUARE_DOWN_TWO_RIGHT))))
 			legit_moves.push_back(move_from + ONE_SQUARE_DOWN_TWO_RIGHT);
+		
 		return legit_moves;
 	}
 
@@ -682,29 +698,17 @@ public:
 		std::cout << "Comp move: " << random_move_from << ' ' << random_move_to << '\n';
 		return std::tuple <int, int>(random_move_from, random_move_to);
 	}
-
-
-
+	
 	// Function that gets positions of all computer pieces.
-	// !!!!!!!!!!!!!!!!!!!!! TEMPORARILY returns only pawns.
+	// !!!!!!!!!!!!!!!!!!!!! TEMPORARILY returns only pawns and knights.
+	// !!!!!!!!!!!!!!!!!!!!!!
 	std::vector<int> get_comp_square_numbers() const {
 		std::vector<int> comp_square_numbers;
 		// If player is playing black pieces, get positions of all white pieces (computer's pieces). 
-		if (m_player_color == 0) {
-			for (int i = 0; i < 64; ++i) {
-				// The part after && will be removed.
-				if (get_bit(m_white_pieces, i) && (get_bit(m_all_pieces_bitboards[0], i) || get_bit(m_all_pieces_bitboards[1], i))) {
-					comp_square_numbers.push_back(i);
-				}
-			}
-		}
-		// If player is playing white pieces, get positions of all black pieces for the comp. 
-		else {
-			for (int i = 0; i < 64; ++i) {
-				// The part after && will be removed.
-				if (get_bit(m_black_pieces, i) && (get_bit(m_all_pieces_bitboards[0], i) || get_bit(m_all_pieces_bitboards[1], i))) {
-					comp_square_numbers.push_back(i);
-				}
+		for (int i = 0; i < 64; ++i) {
+			// !!!!!!!!!!!!!!!!!!The part after && will be removed.
+			if (get_bit(m_player_color == 0 ? m_white_pieces : m_black_pieces, i) && (get_bit(m_all_pieces_bitboards[0], i) || get_bit(m_all_pieces_bitboards[1], i))) {
+				comp_square_numbers.push_back(i);
 			}
 		}
 		return comp_square_numbers;
