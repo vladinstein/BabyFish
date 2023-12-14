@@ -563,7 +563,7 @@ public:
 		return legit_moves;
 	}
 
-	//Function that returns white knight's moves.
+	//Function that returns knight's moves.
 	std::vector<int> get_knights_moves(int move_from) {
 		std::vector<int> legit_moves{};
 		// For each move, we check if origin square is not in 1-2 border ranks/files (depending on each move)
@@ -605,6 +605,13 @@ public:
 		return legit_moves;
 	}
 
+	//Function that returns bishop's moves.
+	std::vector<int> get_bishops_moves(int move_from) {
+		std::vector<int> legit_moves{};
+		std::cout << move_from << '\n';
+		return legit_moves;
+	}
+
 	// Function that returns all legit moves.
 	std::vector<int> get_legit_moves(size_t bitboard_number_from, int move_from) {
 		std::vector<int> legit_moves{};
@@ -616,6 +623,9 @@ public:
 			legit_moves = get_black_pawn_moves(move_from);
 		}
 		else if (bitboard_number_from == 1) {
+			legit_moves = get_knights_moves(move_from);
+		}
+		else if (bitboard_number_from == 2) {
 			legit_moves = get_knights_moves(move_from);
 		}
 		return legit_moves;
