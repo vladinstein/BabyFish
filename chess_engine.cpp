@@ -124,6 +124,15 @@ class GameData {
 	bool m_player_color{};
 
 public:
+	enum enumPiece
+	{
+		nPawn,
+		nKnight,
+		nBishop,
+		nRook,
+		nQueen,
+		nKing
+	};
 	// Some parts will be removed !!!!!!!!!!!!!!!!!!!!!
 	GameData(std::array<U64, 7> all_pieces_bitboards, U64 color, U64 white_pieces, U64 black_pieces, bool active_color, 
 		std::array<bool, 4> castling_values, std::string en_passant_target, int halfmove_clock, int fullmove_number, 
@@ -294,8 +303,8 @@ public:
 	void append_m_white_pieces_to_fen(std::string& fen, std::size_t bit) {
 		// Write the appropriate letter (white pieces) into the future FEN string.
 		std::size_t little_endian_bit = fen.length() - 1 - bit;
-		if (get_bit(m_all_pieces_bitboards[0], little_endian_bit))			fen[bit] = 'P';
-		else if (get_bit(m_all_pieces_bitboards[1], little_endian_bit))	    fen[bit] = 'N';
+		if (get_bit(m_all_pieces_bitboards[nPawn], little_endian_bit))			fen[bit] = 'P';
+		else if (get_bit(m_all_pieces_bitboards[nKnight], little_endian_bit))	    fen[bit] = 'N';
 		else if (get_bit(m_all_pieces_bitboards[2], little_endian_bit))  	    fen[bit] = 'B';
 		else if (get_bit(m_all_pieces_bitboards[3], little_endian_bit))		fen[bit] = 'R';
 		else if (get_bit(m_all_pieces_bitboards[4], little_endian_bit))	    fen[bit] = 'Q';
