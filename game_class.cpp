@@ -11,62 +11,6 @@
 #include <random>
 #include "game_class.h"
 
-// Empty bitboard.
-constexpr U64 EMPTY_BITBOARD{ 0x00000000000000ULL };
-constexpr U64 A_FILE{ 0x0101010101010101ULL };
-constexpr U64 A_B_FILES{ 0x0303030303030303ULL };
-constexpr U64 H_FILE{ 0x8080808080808080ULL };
-constexpr U64 G_H_FILES{ 0xC0C0C0C0C0C0C0C0ULL };
-constexpr U64 RANK_8{ 0xFF00000000000000ULL };
-constexpr U64 RANKS_7_8{ 0xFFFF000000000000ULL };
-constexpr U64 RANK_1{ 0xFFULL };
-constexpr U64 RANKS_1_2{ 0xFFFFULL };
-
-const std::array<U64, 7> ALL_PIECES_EMPTY{ 0x00000000000000ULL, 0x00000000000000ULL, 0x00000000000000ULL,
-0x00000000000000ULL, 0x00000000000000ULL, 0x00000000000000ULL, 0xFFFFFFFFFFFFFFFFULL };
-
-// Starting bitboards.
-const std::array<U64, 7> ALL_PIECES_START_POS{ 0xFF00000000FF00ULL, 0x4200000000000042ULL, 0x2400000000000024ULL,
-0x8100000000000081ULL, 0x800000000000008ULL, 0x1000000000000010ULL, 0xFFFFFFFFFFFFFFFFULL };
-constexpr U64 COLOR_START_POS{ 0xFFFFULL };
-constexpr U64 WHITE_PIECES_START_POS{ 0xFFFFULL };
-constexpr U64 BLACK_PIECES_START_POS{ 0xFFFF000000000000ULL };
-
-// Other starting data.
-constexpr bool ACTIVE_COLOR_START_POS{ true };								// true - white, false - black.
-const std::array<bool, 4> CASTLING_START_POS{ true, true, true, true };
-const std::string EN_PASSANT_TARGET_START_POS{ "-" };
-constexpr int HALFMOVE_CLOCK_START_POS{ 0 };
-constexpr int FULLMOVE_NUMBER_START_POS{ 0 };
-
-// Squares on the bitboard relative to current square.
-constexpr int ONE_SQUARE_UP{ 8 };
-constexpr int ONE_SQUARE_DOWN{ -8 };
-constexpr int TWO_SQUARES_UP{ 16 };
-constexpr int TWO_SQUARES_DOWN{ -16 };
-constexpr int ONE_SQUARE_LEFT_ONE_UP{ 7 };
-constexpr int ONE_SQUARE_RIGHT_ONE_UP{ 9 };
-constexpr int ONE_SQUARE_LEFT_ONE_DOWN{ -9 };
-constexpr int ONE_SQUARE_RIGHT_ONE_DOWN{ -7 };
-constexpr int ONE_SQUARE_UP_TWO_LEFT{ 6 };
-constexpr int ONE_SQUARE_UP_TWO_RIGHT{ 10 };
-constexpr int ONE_SQUARE_DOWN_TWO_LEFT{ -10 };
-constexpr int ONE_SQUARE_DOWN_TWO_RIGHT{ -6 };
-constexpr int TWO_SQUARES_UP_ONE_LEFT{ 15 };
-constexpr int TWO_SQUARES_UP_ONE_RIGHT{ 17 };
-constexpr int TWO_SQUARES_DOWN_ONE_LEFT{ -17 };
-constexpr int TWO_SQUARES_DOWN_ONE_RIGHT{ -15 };
-
-// Length of the part of the move string containing the coordinates of one square.
-constexpr std::size_t LENGTH_ONE_SQUARE_COORDS{ 2 };
-
-constexpr int LENGTH_IN_SQUARES_ONE_RANK{ 8 };
-constexpr int ASCII_LOWER_CASE_A_INT{ 97 };
-constexpr int ASCII_ONE_INT{ 49 };
-
-// Default for the player's color is zero-initialized.
-constexpr bool PLAYER_COLOR_DEFAULT{};
-
 #define set_bit(b, i) ((b) |= (1ULL << i))
 #define get_bit(b, i) ((b) & (1ULL << i))
 #define clear_bit(b, i) ((b) &= ~(1ULL << i))

@@ -25,47 +25,6 @@
 //	}
 //}
 
-// Is it possible to move the loop into a different func?
-// This function returns black pawn moves.
-//std::vector <std::pair<size_t, size_t>> get_black_pawn_moves (FenData& game) {
-//	std::vector <std::pair<size_t, size_t>> black_pawn_moves = {};
-//	for (std::size_t i = 2; i < game.board.size() - 2; i++)
-//	{
-//		for (std::size_t j = 2; j < game.board[i].size() - 2; j++)
-//		{
-//			if (i == 3 && game.board[i][j] == -1 && game.board[i + 2][j] == 0)
-//				black_pawn_moves.push_back(std::make_pair(i + 2, j));
-//			if (game.board[i][j] == -1 && game.board[i + 1][j] == 0)
-//				black_pawn_moves.push_back(std::make_pair(i + 1, j));
-//			if (game.board[i][j] == -1 && game.board[i + 1][j - 1] > 0 && game.board[i + 1][j - 1] < 7)
-//				black_pawn_moves.push_back(std::make_pair(i + 1, j - 1));
-//			if (game.board[i][j] == -1 && game.board[i + 1][j + 1] > 0 && game.board[i + 1][j + 1] < 7)
-//				black_pawn_moves.push_back(std::make_pair(i + 1, j + 1));
-//		}
-//	}
-//	return black_pawn_moves;
-//}
-
-// This function returns white pawn moves.
-//std::vector <std::pair<size_t, size_t>> get_white_pawn_moves(FenData& game) {
-//	std::vector <std::pair<size_t, size_t>> white_pawn_moves = {};
-//	for (std::size_t i = 2; i < game.board.size() - 2; i++)
-//	{
-//		for (std::size_t j = 2; j < game.board[i].size() - 2; j++)
-//		{
-//			if (i == 8 && game.board[i][j] == 1 && game.board[i - 2][j] == 0)
-//				white_pawn_moves.push_back(std::make_pair(i - 2, j));
-//			if (game.board[i][j] == 1 && game.board[i - 1][j] == 0)
-//				white_pawn_moves.push_back(std::make_pair(i - 1, j));
-//			if (game.board[i][j] == 1 && game.board[i - 1][j - 1] > 0 && game.board[i - 1][j - 1] < 7)
-//				white_pawn_moves.push_back(std::make_pair(i - 1, j - 1));
-//			if (game.board[i][j] == 1 && game.board[i - 1][j + 1] > 0 && game.board[i - 1][j + 1] < 7)
-//				white_pawn_moves.push_back(std::make_pair(i - 1, j + 1));
-//		}
-//	}
-//	return white_pawn_moves;
-//}
-
 int main()
 {
 	std::string fen{};
